@@ -1,9 +1,21 @@
 ---
-title: "Tutorial - Detecção de sinais usando o pacote `monitoraSom`"
+title: "_monitoraSom_: pacote de R para detecção de sinais usando template matching"
+subtitle: "Roteiro para a oficina do I Simpósio de Física aplicada à Ecologia e Conservação"
 author: "Gabriel L. M. Rosa"
 date: "`r Sys.Date()`"
-output: pdf_document
+output:
+  rmdformats::downcute:
+    number_sections: true
+    self_contained: true
+    thumbnails: true
+    lightbox: true
+    gallery: false
+    highlight: tango
 ---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
 
 ## Instalação e setup inicial
 
@@ -27,10 +39,10 @@ Seja bem-vindo(a) ao tutorial do monitoraSom! Nessa primeira etapa, vamos fazer 
 - link para download: https://cran.r-project.org/bin/windows/Rtools/
 
 ### 4. Criar uma nova pasta para conter os arquivos usandos pelo monitoraSom.
-- Para usuários do Windows, recomendamos criar uma pasta para análises na raiz do sistema, e dentro dela uma pasta para este projeto, por exemplo, "C:/Meus Projetos/monitoraSom_tutorial". Dessa forma o caminho para os arquivos será o mesmo mesmo que os arquivos sejam movidos para outro computador.
+Para usuários do Windows, recomendamos criar uma pasta para análises na raiz do sistema, e dentro dela uma pasta para este projeto, por exemplo, "C:/Meus Projetos/monitoraSom_tutorial". Dessa forma o caminho para os arquivos será o mesmo mesmo que os arquivos sejam movidos para outro computador.
 
 ### 5. Instalar o devtools para poder instalar pacotes a partir do GitHub.
-- Esse comando deve ser executado no Rstudio após a instalação do Rtools.
+Esse comando deve ser executado no Rstudio após a instalação do Rtools.
 ```{r eval=FALSE, include=TRUE}
 install.packages("devtools")
 ```
@@ -48,48 +60,172 @@ library(devtools)
 install_github("ConservaSom/monitoraSom", dependencies = TRUE)
 ```
 
-### 8. Carregar o monitoraSom no ambiente de trabalho do R para testar a
-   instalação.
-```{r eval=FALSE, include=TRUE}
+### 8. Carregar o monitoraSom no ambiente de trabalho do R para testar a instalação.
+```{r message=FALSE, warning=FALSE}
 library(monitoraSom)
+library(dplyr)
 ```
 
 ### 9. Salvar esse script no diretório de trabalho conforme descrito no passo 4.
-- Priorize salvar com um nome informativo e que mantenha a sequência de passos desse e dos tutoriais seguintes, por exemplo, "script_01_instalação.R".
+Priorize salvar com um nome informativo e que mantenha a sequência de passos desse e dos tutoriais seguintes, por exemplo, "script_01_instalação.R".
 
 ### Checkpoint 01
-Parabéns! Você instalou o monitoraSom e está pronto para começar a usar. Você pode salvar esse script no diretório de trabalho conforme descrito no passo 4.
+Você instalou o monitoraSom e está pronto para começar a usar. Salve esse script no diretório de trabalho conforme descrito no passo 4.
 
 ### 10. Organizando o ambiente de trabalho.
 Vamos seguir a partir deste ponto assumindo que o diretório de trabalho está organizado conforme descrito no passo 4 e que o código está salvo em um arquivo em formato de script ou notebook (Rmarkdown ou Quarto).
 
-- Vamos checar se o diretório de trabalho da sessão atual é o mesmo do diretório de trabalho do nosso projeto. No nosso caso, compartilhamos o mesmo diretório de trabalho do conteúdo do tutorial do pacote soundmeteR, então vamos ter que definir manualmente o diretório de trabalho da sessão atual.
+Vamos verificar e, se necessário, ajustar manualmente o diretório de trabalho da sessão atual.
 ```{r}
 getwd()
 ```
 
-- Se o script estiver salvo no diretório de trabalho, podemos usar o comando abaixo definir automaticamente a partir da localização dele.
+Se o script estiver no diretório de trabalho, use o comando abaixo para definir o diretório automaticamente.
 ```{r}
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 getwd() # Verificando se o diretório de trabalho foi definido corretamente
 ```
 
 ### 11. Povoando o diretório de trabalho com os arquivos de exemplo do monitoraSom.
-- O monitoraSom disponibiliza um conjunto de arquivos de exemplo para o usuário testar o pacote. Vamos usar a função `set_workspace` para povoar o diretório de trabalho com os arquivos de exemplo.
-```{r}
+Use a função `set_workspace` para adicionar os arquivos de exemplo do monitoraSom ao seu diretório de trabalho. Esse comando é recomendado para novos projetos. Evite executá-lo em diretórios que já contenham dados de projetos em andamento. Isso poderá resultar em perdas permanentes de dados.
+```{r eval=FALSE}
 set_workspace(project_path = "./", example_data = TRUE)
 ```
 
-- Vamos fazer algumas checagens para verificar se os arquivos de exemplo foram depositados corretamente.
-```{r}
+Vamos fazer algumas checagens para verificar se os arquivos de exemplo foram depositados corretamente. Em um prjeto recém iniciado, o usuário deverá ter pelo menos os arquivos das soundscapes, e caso deseje extrair templates de outras gravações, uma pasta chamada "recordings". Todos os demais arquivos estão precarregados no pacote para facilitar o uso do monitoraSom. Caso não tenha os arquivos de exemplo, execute o comando `set_workspace` novamente.
 
+Estes são os arquivos das soundscapes onde buscamos a espécie alvo:
+```{r}
 list.files("./soundscapes/", full.names = TRUE)
+```
+
+Estes são os arquivos das gravações focais de onde serão extraídos templates:
+```{r}
+list.files("./recordings/", full.names = TRUE)
+```
+
+Estes são os arquivos com as regiões de interesse determinadas nas gravações focais e soundscapes:
+```{r}
 list.files("./roi_tables/", full.names = TRUE)
-list.files("./templates/", full.names = TRUE)
-list.files("./app_presets/", full.names = TRUE)
-list.files("./soundscapes_metadata/", full.names = TRUE)
-list.files("./roi_cuts/", full.names = TRUE)
+```
+
+### 12. (Opcional) Limpeza de arquivos pre-carregados
+Vamos apagar os arquivos de exemplo para continuar o tutorial como um novo projeto. Pule esta etapa se quiser obter os mesmos resultados do tutorial.
+```{r eval=FALSE}
+file.remove(list.files("./detections/", full.names = TRUE))
+file.remove(list.files("./match_grid_metadata/", full.names = TRUE))
+file.remove(list.files("./match_scores/", full.names = TRUE))
+file.remove(list.files("./soundscapes_metadata/", full.names = TRUE))
+file.remove(list.files("./templates/", full.names = TRUE))
+file.remove(list.files("./templates_metadata/", full.names = TRUE))
+file.remove(list.files("./validation_outputs/", full.names = TRUE))
 ```
 
 ### Checkpoint 02
-Parabéns! Você povoou o diretório de trabalho com os arquivos de exemplo do monitoraSom e está pronto para começar a usar. Você pode salvar esse script no diretório de trabalho conforme descrito no passo 4.
+Você povoou o diretório de trabalho com os arquivos de exemplo do monitoraSom e está pronto para seguir com o uso do pacote. Apague os arquivos de exemplo se quiser começar um novo projeto.
+
+### 13. Usar o app de segmentação para escolher os templates.
+Agora vamos usar o app de segmentação para escolher os templates. Note que como estamos somente escolhendo os templates, definimos o destino dos cortes de audio para a pasta "./templates". Os templates são as amostras de som que desejamos usar para detecção nos passos seguintes. Podemos exportar os templates manualmente de dentro do app, mas nesse tutorial vamos usar o app somente para demarcar as ROIs, para depois exportar os cortes de audio automaticamente (ver passo 16).
+```{r eval=FALSE}
+launch_segmentation_app(
+    user = "User", # Nome do usuário
+    project_path = "./", # Caminho para a pasta do projeto
+    preset_path = "./app_presets/", # Caminho para a pasta de presets
+    soundscapes_path = "./recordings/", # Caminho onde ler as gravações
+    roi_tables_path = "./roi_tables/", # Caminho para onde exportar as ROIs
+    cuts_path = "./templates/", # Caminho para onde exportar cortes de audio
+    dyn_range = c(-102, -42), # Ajuste do contraste do espectrograma
+    wl = 1024, # Ajuste do comprimento da janela do fft (parametro espectral)
+    ovlp = 50, # Ajuste da sobreposição do fft (parametro espectral)
+    color_scale = "greyscale 1", # Ajuste da escala de cores do espectrograma
+    nav_autosave = TRUE # Auomtação de salvamento ao trocar de soundscape
+)
+```
+
+### 14. Usar o app de segmentação para segmentar as soundscapes.
+Agora vamos usar o app de segmentação para segmentar as soundscapes. Nessa etapa, definimos o destino dos cortes de audio para a pasta "./roi_cuts". As tabelas de ROIs que serão produzidas nessa etapa serão usadas para avaliar as detecções e medir a poerformance de cada template.
+```{r eval=FALSE}
+launch_segmentation_app(
+    user = "User", project_path = "./", preset_path = "./app_presets/",
+    soundscapes_path = "./soundscapes/", roi_tables_path = "./roi_tables/",
+    cuts_path = "./roi_cuts/", dyn_range = c(-102, -42), wl = 1024, ovlp = 50,
+    color_scale = "greyscale 1", visible_bp = TRUE, nav_autosave = TRUE
+)
+```
+
+### 15. Preparando os templates.
+Vamos importar todas as tabelas de ROIs para verificarmos se temos o que precisamos. Note que as tabelas de ROIs das soundscapes e dos templates encontram-se na mesma pasta, mas podemos discriminá-las facilmentepelo nome do arquivo.
+```{r}
+df_templates <- fetch_rois(rois_path = "./roi_tables/")
+unique(df_templates$soundscape_file) # Verificando os nomes das gravações
+```
+
+Filtrando as tabelas de ROIs para manter somente aquelas com os templates.
+```{r}
+df_templates <- df_templates[grepl("Substructure C", df_templates$roi_comment), ]
+unique(df_templates$soundscape_file) # Verificando os nomes das grava<U+00E7><U+00F5>es
+```
+
+### 16. Exportando os cortes de audio dos templates.
+Para exportar os cortes de audio dos templates, usamos a função `export_roi_cuts()`. Note que os cortes de audio serão exportados para a pasta "./templates".
+```{r eval=FALSE}
+export_roi_cuts(df_rois = df_templates, roi_cuts_path = "./templates/")
+list.files(path = "./templates/", pattern = "Bcu", full.names = TRUE)
+```
+
+### Checkpoint 03
+Aqui você deve decidir: se deseja seguir com o processo simplificado (função `template matching()`) execute o passo 17, ou se deseja seguir com o processo detalhado, execute os passos 18-21.
+<!-- todo Definir os passos aqui -->
+
+### 17. Obtendo as detecções (processo simplificado)
+Vamos usar o processo simplificado para obter as detecções. Esse processo é mais rápido e fácil, mas menos flexível. Ele é recomendado para projetos pequenos e para quem deseja obter rapidamente os resultados. Nesse caso vamos exportar os resultados para o arquivo "./detections/df_detections.csv" e usar 4 núcleos para processamento paralelo, para ganhar um pouco de velocidade.
+```{r}
+template_matching(
+    soundscapes_path = "./soundscapes/", # local de origem das soundscapes
+    templates_path = "./templates/", # local de origem dos templates
+    output_file = "./detections/df_detections.csv", # resultado (detecções)
+    ncores = 4
+)
+```
+
+### 18. Processando os metadados das soundscapes (processo detalhado).
+```{r eval=FALSE}
+df_soundscapes <- fetch_soundscape_metadata(
+    soundscapes_path = "./soundscapes", # caminho para as soundscapes
+    recursive = TRUE, # se TRUE, lê subdiretórios de forma recursiva
+    # caminho para onde exportar o arquivo de metadados
+    output_file = "./soundscapes_metadata/df_soundscapes.csv",
+    ncores = 4, # quantidade de núcleos para processamento paralelo
+    # se TRUE, pula o processamento de arquivos já registrados nos metadados
+    skip_processed = TRUE
+)
+glimpse(df_soundscapes)
+```
+
+### 19. Processando os metadados dos templates (processo detalhado).
+```{r}
+df_templates <- fetch_template_metadata(
+    templates_path = "./templates/", recursive = TRUE
+)
+glimpse(df_templates)
+```
+
+### 20. Juntando os metadados das soundscapes e dos templates (processo detalhado).
+```{r}
+df_grid <- fetch_match_grid(
+    soundscape_data = df_soundscapes, template_data = df_templates
+)
+glimpse(df_grid)
+```
+
+### 21. Obtendo as detecções (processo detalhado)
+```{r}
+run_matching(
+    df_grid = df_grid,
+    output_file = "./detections/df_detections.csv",
+    ncores = 4
+)
+```
+
+### Checkpoint 04
+Você obteve as detecções, agora é hora de validar as detecções.
