@@ -1,26 +1,77 @@
 ---
-title: "Untitled"
-output: github_document
+title: "_soundmeteR_: pacote de R para calcular níveis de pressão e intensidade sonora"
+subtitle: "Roteiro para a oficina do I Simpósio de Física aplicada à Ecologia e Conservação"
+author: "Cassio Rachid Simões"
+date: "`r Sys.Date()`"
+output: 
+  rmdformats::downcute: 
+    number_sections: true
+    self_contained: true
+    thumbnails: true
+    lightbox: true
+    gallery: false
+    highlight: tango
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Instalação
+# Introdução
 
-## Visão geral do soundmeteR
+Este é um roteiro apresentando o fluxo de análises utilizando o pacote _soundmeteR_. O presente documento foi idealizado para a oficina realizada durante o I Simpósio de Física aplicada à Ecologia e Conservação, realizado em novembro de 2025 em Foz do Iguaçu-PR.
 
-### Funções principais
+O pacote _soundmeteR_ é uma ferramenta desenvolvida em R para extração de valores de energia sonora (pressão e intensidade) a partir de gravações em formato Wave (.wav). Ele oferece uma série de funções relacionadas ao fluxo de trabalho para obtenção destas medidas, incluindo a possibilidade de calibração para o cálculo de níveis absolutos de pressão e intensidade.
 
-### Exemplos de uso
+# Preparação do ambiente
 
-### Calibrações
+O fluxo de trabalho apresentado nesse documento foi pensado de maneira que os participantes possam tanto acompanhar as etapas de análise utilizando seus próprios computadores durante a oficina quanto executar de forma independente após participarem da oficina. Para isso, é necessário que os participantes tenham o _R_, versão do Rtools_ equivalente e o _Rstudio_ instalados e atualizados em suas máquinas.
 
-## Aplicação prática
+Atualmente, o pacote _soundmeteR_ está disponível apenas no repositório oficial do GitHub (https://github.com/ConservaSom/soundmeteR) e para instalá-lo será necessário também a instalação do pacote _devtools_, que é utilizado para instalar pacotes diretamente do GitHub.
+
+Nos tópicos a seguir estão descritas as etapas para a preparação do ambiente de análise.
+
+## Programas necessários
+
+Os programas necessários para a instalação e utilização do _soundmeteR_ são:
+
+- R - https://cran.r-project.org/
+- Rstudio - https://posit.co/download/rstudio-desktop/
+- Rtools - https://cran.r-project.org/bin/windows/Rtools/ (apenas para usuários Windows)
+
+## Instalação do devtools
+
+O _devtools_ é um pacote essencial para usuários avançados de R, pois permite a instalação de pacotes que ainda não foram publicados no CRAN (o repositório oficial do R). Para instalá-lo, basta executar o comando comando abaixo:
+
+```{r eval=FALSE}
+install.packages("devtools")
+```
+
+## Instalação do _soundmeteR_ e suas dependências
+
+É possível encontrar as instruções de instalação do _soundmeteR_ no repositório oficial do GitHub do pacote (https://github.com/ConservaSom/soundmeteR), mas para facilitar o processo, basta executar o código abaixo para instalar o _soundmeteR_ e todas as suas dependências:
+
+```{r eval=FALSE}
+devtools::install_github("ConservaSom/soundmeteR")
+```
+
+Para verificar se o _soundmeteR_ foi instalado corretamente, basta carregar o pacote utilizando o comando abaixo (nenhuma mensagem de erro deve ser exibida):
+```{r eval=FALSE}
+library("soundmeteR")
+```
+
+# Visão geral do soundmeteR
+
+## Funções principais
+
+## Exemplos de uso
+
+## Calibrações
+
+# Aplicação prática
 
 Artigo do basileuterus
 
-### Calibração
+## Calibração
 
-### 
+## 
