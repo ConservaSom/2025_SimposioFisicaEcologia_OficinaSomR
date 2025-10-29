@@ -1,0 +1,35 @@
+---
+title: "Tutorial - Detecção de sinais usando o pacote `monitoraSom`"
+author: "Gabriel L. M. Rosa"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+## Instalação e setup inicial
+
+Seja bem-vindo(a) ao tutorial do monitoraSom! Nessa primeira etapa, vamos fazer os downloads e instalações necessárias para o uso do monitoraSom.
+
+### 1. Baixar e instalar o R.
+
+- Verifique se já existe alguma versão instalada.
+- Ao fazer uma nova instalação, dê preferência para a versão mais recente.
+- link para download: https://cran.r-project.org/bin/windows/base/
+
+### 2. Baixar e instalar o Rstudio.
+- Após instalar o R, instale o Rstudio.
+- Atenção: se houver mais de uma versão do R instalada, certifique-se qual está sendo usada ao abrir o Rstudio.
+- link para download: https://posit.co/download/rstudio-desktop/
+
+### 3. Instalar o Rtools (passo necessário apenas para usuários do Windows)
+- Rtools é necessário para compilar pacotes do R que foram instalados a partir do GitHub.
+- Verifique se já existe alguma versão instalada. Caso exista, verifique se é adequada ao projeto. Se não for, desinstale a versão existente.
+- Neste momento, a versão mais recente é a 4.5.
+- link para download: https://cran.r-project.org/bin/windows/Rtools/
+
+### 4. Criar uma nova pasta para conter os arquivos usandos pelo monitoraSom.
+- Para usuários do Windows, recomendamos criar uma pasta para análises na raiz do sistema, e dentro dela uma pasta para este projeto, por exemplo, "C:/Analises/monitoraSom_tutorial". Dessa forma o caminho para os arquivos será o mesmo mesmo que os arquivos sejam movidos para outro computador.
+
+```{r eval=TRUE, include=FALSE}
+library(monitoraSom)
+```
+
