@@ -1,0 +1,26 @@
+---
+title: "Untitled"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Instalação
+
+## Visão geral do soundmeteR
+
+### Funções principais
+
+### Exemplos de uso
+
+### Calibrações
+
+## Aplicação prática
+
+Artigo do basileuterus
+
+### Calibração
+
+### 
