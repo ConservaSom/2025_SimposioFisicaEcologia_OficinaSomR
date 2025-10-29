@@ -54,30 +54,24 @@ df_soundscapes <- fetch_soundscape_metadata(
 )
 glimpse(df_soundscapes) # Inspecionando o resultado
 
-# 32. Os metadados dos templates são importados de forma similar aos demais
-#     tipos de metadados. Como a quantidade de e o tamanho dos arquivos de
-#     templates dificilmente será grande, a função não realiza o processamento
-#     paralelo nem salvamento automático do arquivo com os metadados.
-df_templates <- fetch_template_metadata(
-    templates_path = "./templates",
-    recursive = TRUE
-        into = c("coords", "date", "time"), remove = FALSE
-    ) %>%
-    mutate(
-        longitude = -as.numeric(substr(coords, 2, 6)) / 1000,
-        latitude = -as.numeric(substr(coords, 8, 13)) / 1000,
-        date_time = as.POSIXct(
-            paste0(
-                substr(date, 1, 4), "-", substr(date, 5, 6), "-",
-                substr(date, 7, 8), " ", substr(timsca, precisamos juntar os metadados das soundscapes e
-#     dos templates em uma unica tabela e fazer checagens para garantir que o
-#     template matching ocorra segundo planejado. O resultado dessa combinção é
-#     o que podemos chamar de grade de busca. As função que produz essa grade
-#     faz mais do que produzir uma combinação par a par entre todas as
-#     soundscapes e templates, ela também faz checagens de compatibilidade entre
-#     os arquivos. Uma dessas checagens, por exemplo, garante que a taxa de
-#     amostragem das soundscapes seja compatível com a taxa de amostragem dos
-#     templates. Casos de incompatibilidade são automaticamente omitidos e
+# 32. Os metadados dos templates são importados de forma
+#     similar aos demais tipos de metadados. Como a
+#     quantidade de e o tamanho dos arquivos de templates
+#     dificilmente será grande, a função não realiza o
+#     processamento paralelo nem salvamento automático do
+#     arquivo com os metadados. Precisamos juntar os
+#     metadados das soundscapes e #     dos templates em uma
+#     unica tabela e fazer checagens para garantir que o
+#     template matching ocorra segundo planejado. O
+#     resultado dessa combinção é o que podemos chamar de
+#     grade de busca. As função que produz essa grade faz
+#     mais do que produzir uma combinação par a par entre
+#     todas as soundscapes e templates, ela também faz
+#     checagens de compatibilidade entre os arquivos. Uma
+#     dessas checagens, por exemplo, garante que a taxa de
+#     amostragem das soundscapes seja compatível com a taxa
+#     de amostragem dos templates. Casos de
+#     incompatibilidade são automaticamente omitidos e
 #     retornam alertas para o usuário.
 df_grid <- monitoraSom::fetch_match_grid(
     soundscape_data = df_soundscapes, template_data = df_templates
