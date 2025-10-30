@@ -1,7 +1,7 @@
 ---
-title: "_soundmeteR_: pacote de R para calcular níveis de pressão e intensidade sonora"
+title: "_soundmeteR_: pacote em R para calcular níveis de pressão e intensidade sonora"
 subtitle: "Roteiro para a oficina do I Simpósio de Física aplicada à Ecologia e Conservação"
-author: "Cassio Rachid Simões"
+author: "Cássio Rachid Simões (cassiorachid@conservasom.com.br)"
 date: "`r Sys.Date()`"
 output: 
   rmdformats::downcute: 
@@ -13,19 +13,25 @@ output:
     highlight: tango
 ---
 
+<style>
+body {
+text-align: justify}
+</style>
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
 ```
 
 # Introdução
 
 Este é um roteiro apresentando o fluxo de análises utilizando o pacote _soundmeteR_. O presente documento foi idealizado para a oficina realizada durante o I Simpósio de Física aplicada à Ecologia e Conservação, realizado em novembro de 2025 em Foz do Iguaçu-PR.
 
-O pacote _soundmeteR_ é uma ferramenta desenvolvida em R para extração de valores de energia sonora (pressão e intensidade) a partir de gravações em formato Wave (.wav). Ele oferece uma série de funções relacionadas ao fluxo de trabalho para obtenção destas medidas, incluindo a possibilidade de calibração para o cálculo de níveis absolutos de pressão e intensidade.
+Todos os códigos apresentados neste roteiro devem ser executados no R. Você pode usar RStudio, VS Code (com suporte a R) ou outra interface gráfica de sua preferência. Recomenda-se especialmente o uso do RStudio, por ser uma interface intuitiva e amplamente adotada pela comunidade R.
 
 # Preparação do ambiente
 
-O fluxo de trabalho apresentado nesse documento foi pensado de maneira que os participantes possam tanto acompanhar as etapas de análise utilizando seus próprios computadores durante a oficina quanto executar de forma independente após participarem da oficina. Para isso, é necessário que os participantes tenham o _R_, versão do Rtools_ equivalente e o _Rstudio_ instalados e atualizados em suas máquinas.
+O fluxo de trabalho apresentado nesse documento foi pensado de maneira que os participantes possam tanto acompanhar as etapas de análise utilizando seus próprios computadores durante a oficina quanto executar de forma independente após participarem da oficina. Para isso, é necessário que os participantes tenham o _R_, versão do _Rtools_ equivalente e o _Rstudio_ instalados e atualizados em suas máquinas.
 
 Atualmente, o pacote _soundmeteR_ está disponível apenas no repositório oficial do GitHub (https://github.com/ConservaSom/soundmeteR) e para instalá-lo será necessário também a instalação do pacote _devtools_, que é utilizado para instalar pacotes diretamente do GitHub.
 
@@ -35,21 +41,21 @@ Nos tópicos a seguir estão descritas as etapas para a preparação do ambiente
 
 Os programas necessários para a instalação e utilização do _soundmeteR_ são:
 
-- R - https://cran.r-project.org/
-- Rstudio - https://posit.co/download/rstudio-desktop/
-- Rtools - https://cran.r-project.org/bin/windows/Rtools/ (apenas para usuários Windows)
+- _R_: https://cran.r-project.org/
+- _Rstudio_: https://posit.co/download/rstudio-desktop/
+- _Rtools_ (apenas para usuários Windows): https://cran.r-project.org/bin/windows/Rtools/
 
-## Instalação do devtools
+## Instalação do _devtools_
 
-O _devtools_ é um pacote essencial para usuários avançados de R, pois permite a instalação de pacotes que ainda não foram publicados no CRAN (o repositório oficial do R). Para instalá-lo, basta executar o comando comando abaixo:
+O _devtools_ é um pacote essencial para usuários avançados de R, pois permite a instalação de pacotes que ainda não foram publicados no CRAN (o repositório oficial do R). Para instalá-lo, basta executar o comando comando abaixo dentro do R ou Rstudio:
 
 ```{r eval=FALSE}
 install.packages("devtools")
 ```
 
-## Instalação do _soundmeteR_ e suas dependências
+## Instalação do _soundmeteR_
 
-É possível encontrar as instruções de instalação do _soundmeteR_ no repositório oficial do GitHub do pacote (https://github.com/ConservaSom/soundmeteR), mas para facilitar o processo, basta executar o código abaixo para instalar o _soundmeteR_ e todas as suas dependências:
+É possível encontrar as instruções de instalação do _soundmeteR_ no repositório oficial do GitHub (https://github.com/ConservaSom/soundmeteR), mas para facilitar o processo, basta executar o código abaixo para instalar o _soundmeteR_ e suas dependências:
 
 ```{r eval=FALSE}
 devtools::install_github("ConservaSom/soundmeteR")
@@ -60,18 +66,89 @@ Para verificar se o _soundmeteR_ foi instalado corretamente, basta carregar o pa
 library("soundmeteR")
 ```
 
-# Visão geral do soundmeteR
+# Visão geral do _soundmeteR_
 
-## Funções principais
+O pacote _soundmeteR_ é uma ferramenta desenvolvida em R para extração de valores de energia sonora (pressão e intensidade) a partir de gravações em formato Wave (_.wav_). Ele oferece uma série de funções relacionadas ao fluxo de trabalho para obtenção destas medidas, incluindo a possibilidade de calibração para o cálculo de níveis absolutos de pressão e intensidade e aplicação de curvas de ponderação de frequências (curvas A, B C, Z).  O pacote vem sendo aplicado em fluxos de trabalhos e nas análises alguns artigo científicos a alguns anos e atualmente está em fase final de desenvolvimento e preparação do manuscrito. Abaixo estão as funções principais e uma breve descrição de suas funcionalidades. O arquivo PDF do manual do pacote disponibilizado no GitHub (https://github.com/ConservaSom/soundmeteR) contém uma descrição detalhada de todas as funções disponíveis.
+
+```{r tabela-funções, echo = FALSE}
+# Bloco de código oculto. Apenas para construção da tabela no documento final
+matrix(
+  dimnames = list(
+    NULL, # nomes das linhas
+    c("Função", "Descrição") # nomes das colunas
+  ),
+  data = c(
+    "*leqbands*", "Calcula o Nível Sonoro Equivalente (Leq) para arquivos para para um arquivos Wave em oitavas ou terças de oitavas",
+    "*leqbands_cal*", "O mesmo que o *leqbands*, porém permite a calibração a partir de um sinal de referência dentro do mesmo arquivo Wave",
+    "*soundmeter*", "Computa medidas similares às de um decibelímetro a partir de arquivos Wave, permitindo a escolha da janela de amostragem (fast ou slow) e apresenta medidas comumente encontradas nestes tipos de equipamentos como Leq, L10, L50, L90, Lmax, entre outras"
+  ),
+  ncol = 2,
+  byrow = TRUE
+) %>%
+  knitr::kable(format = "markdown") %>%
+  kableExtra::kable_classic() %>%
+  kableExtra::footnote(
+    general_title = "",
+    "**Nota**: Todas as funções permitem a escolha de diferentes curvas de ponderação de frequências (como curvas A, B, C e Z)",
+    fixed_small_size = TRUE
+  )
+```
 
 ## Exemplos de uso
 
-## Calibrações
+```{r eval = FALSE}
+library(soundmeteR) # carregar o pacote soundmeteR
+library(seewave) # caregando seewave para visualização do sonogramas
+library(tuneR) # carregando tuneR para manipulação de arquivos Wave
+
+data(tham) #aquivo de exemplo do pacote soundmeteR (Thamnophilus stictocephalus)
+
+spectro(
+  tham,
+  flim = c(0, 10),
+  scale = FALSE
+)
+
+setWavPlayer("audacious")
+
+listen(tham)
+
+```
+
+### Gravações não calibradas
+- leqbands em dBFS
+
+- soundmeter em dBFS (ruído de fundo)
+
+### Gravações com calibração
+- Calibração com arquivos separado
+  - leqbands (pensar em separar a função de calibração)
+  - soundmeter
+
+- Calibração com sinal de referência no mesmo arquivo
+  - leqbands_cal
+  - soundmeter
+
+### Arquivos Wave não carregados no ambiente R
+
+- read.wave
+- leqbands
+- soundmeter
 
 # Aplicação prática
 
-Artigo do basileuterus
+- Artigo do _Basileuterus culicivorus_
+- Contextualizar
+   - PAM
+   - Calibração
+   - Desenho experimental
+   - Medida de interesse
+
+
 
 ## Calibração
 
-## 
+## Extração da medida de interesse
+
+## Modelo de decaimento
+
