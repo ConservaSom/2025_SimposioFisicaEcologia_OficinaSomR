@@ -80,9 +80,26 @@ Vamos verificar e, se necessário, ajustar manualmente o diretório de trabalho 
 getwd()
 ```
 
-Se o script estiver no diretório de trabalho, use o comando abaixo para definir o diretório automaticamente.
+Se o script estiver no diretório de trabalho correto, use o comando abaixo para definir o diretório automaticamente.
 ```{r}
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+getwd() # Verificando se o diretório de trabalho foi definido corretamente
+```
+
+Se quiser definir manualmente o diretório de trabalho, use o comando abaixo.
+```{r eval=FALSE}
+project_path <- paste0(
+    "<coloque aqui o caminho para a pasta do projeto>", "/monitoraSom"
+)
+setwd(project_path)
+getwd() # Verificando se o diretório de trabalho foi definido corretamente
+```
+
+```{r eval=TRUE, echo=FALSE}
+project_path <- paste0(
+    getwd(), "/monitoraSom"
+)
+setwd(project_path)
 getwd() # Verificando se o diretório de trabalho foi definido corretamente
 ```
 
@@ -189,6 +206,8 @@ template_matching(
 ```
 
 ### 18. Processando os metadados das soundscapes (processo detalhado).
+
+No processo detalhado, precisamos reunir os metadados das soundscapes e dos templates separadamente. Vamos começar pelas soundscapes.
 ```{r eval=FALSE}
 df_soundscapes <- fetch_soundscape_metadata(
     soundscapes_path = "./soundscapes", # caminho para as soundscapes
@@ -203,6 +222,7 @@ glimpse(df_soundscapes)
 ```
 
 ### 19. Processando os metadados dos templates (processo detalhado).
+Agora vamos importar os metadados dos templates.
 ```{r}
 df_templates <- fetch_template_metadata(
     templates_path = "./templates/", recursive = TRUE
@@ -211,6 +231,7 @@ glimpse(df_templates)
 ```
 
 ### 20. Juntando os metadados das soundscapes e dos templates (processo detalhado).
+O template matching pode ser custoso para grandes quantidades de arquivos. O processo detalhado permite filtrar e organizar os dados antes do processamento total. A função `fetch_match_grid()` combina os metadados das soundscapes e templates e checa incompatibilidades, como taxas de amostragem diferentes.
 ```{r}
 df_grid <- fetch_match_grid(
     soundscape_data = df_soundscapes, template_data = df_templates
@@ -219,13 +240,46 @@ glimpse(df_grid)
 ```
 
 ### 21. Obtendo as detecções (processo detalhado)
+Agora vamos rodar o template matching usando a grade produzida acima como referência. Abaixo mostramos como rodar o template matching usando a função `run_matching()` e mais alguns recursos que essa função oferece.
 ```{r}
-run_matching(
+df_detections <- run_matching(
     df_grid = df_grid,
-    output_file = "./detections/df_detections.csv",
-    ncores = 4
+    output_file = "./detections/df_detections.csv", # arquivo com as detecções
+    autosave_action = "replace", # ação ao salvar o arquivo
+    buffer_size = "template", # buffer para evitar detecções sobrepostas
+    ncores = 4 # quantidade de núcleos para processamento em paralelo
 )
+glimpse(df_detections)
+```
+
+Dentre as opções disponíveis para o argumento `autosave_action`, temos:
+- "replace": sobrescreve o arquivo existente.
+- "append": adiciona os resultados ao arquivo existente, mas deve ser usado com cuidado para evitar detecções duplicadas ao importar o arquivo.
+
+Dentre as opções disponíveis para o argumento `buffer_size`, temos:
+- "template": buffer para evitar detecções sobrepostas em uma região de mesma duração do template.
+- Valores inteiros: define a quantidade de frames para o buffer.
+- 0: desliga o buffer, permitindo detecções sobrepostas em uma região de mesma duração do template. Essa opção é recomendada somente para projetos em que a validação não será realizada manualmente, já que retém muitas detecções redundantes.
+
+Outras opções de filtragem disponíveis são:
+- `min_score`: define o score mínimo para detecção. Essa opção determina um limiar mínimo para a detecção, excluindo todas as detecções com scores inferiores ao valor especificado. Deve ser usada com cuidadado, pois pode eliminar completamente soundscapes e templates sem scores acima do limiar especificado, e assim eliminar a possibilidade de contagem correta de FN (False Negatives) para validação a priori (ver passo XX).
+  <!-- todo Definir o passo de validação a priori -->
+- `min_quant`: define o quantil mínimo para detecção. Essa opção avalia o quantil dentro de cada rodada de busca, excluindo todas as detecções com scores inferiores ao quantil especificado. Como o quantil é uma medida relativa, retornará sempre ao menos uma detecção para cada rodada de busca.
+- `top_n`: define de forma explícita a quantidade de detecções com os scores mais altos a serem retidas. Essa opção retornará sempre a quantidade de detecções especificada, independente do valor máximo e mínimo de scores obtidos.
+
+
+### 22. Caso especial: Obtendo os scores brutos.
+Vamos usar a função `run_matching()` para fazer as buscas na grade definida, exatamente como no passo 21, mas vamos adicionar o argumento `output = "scores"` para obter os scores brutos ao invés de ir direto para as detecções. Note que mudamos dois argumentos: `output` e `output_file`. `output` define o tipo de resultado que será retornado e `output_file` define o caminho para o arquivo de saída, que agora será um arquivo RDS em vez de CSV.
+```{r}
+df_scores <- run_matching(
+    df_grid = df_grid,
+    output = "scores", # arquivo com os scores brutos
+    output_file = "./detections/df_scores.rds", # arquivo com os scores brutos
+    ncores = 4 # quantidade de núcleos para processamento em paralelo
+)
+glimpse(df_scores)
 ```
 
 ### Checkpoint 04
-Você obteve as detecções, agora é hora de validar as detecções.
+Você obteve as detecções, mas veja que ainda não sabe quais delas são verdadeiras e quais são falsas. Nesse checkpoint você poderá fazer fitragens adicionais às demonstradas no passo acima segundo os critérios do seu projeto.
+
