@@ -1,0 +1,4 @@
+soundscape_path,soundscape_file,roi_user,roi_input_timestamp,roi_label,roi_start,roi_end,roi_min_freq,roi_max_freq,roi_type,roi_label_confidence,roi_is_complete,roi_comment,roi_wl,roi_ovlp,roi_sample_rate,roi_pitch_shift
+./soundscapes/W54431S25613_20191105_060000.wav,W54431S25613_20191105_060000.wav,User,2025-10-31 00:31:28,Basileuterus culicivorus,0.58629865378489,1.1267716540528,3.3027124434056,8.7509262378325,bird - song,certain,complete,segmentation ,1024,50,24000,1
+./soundscapes/W54431S25613_20191105_060000.wav,W54431S25613_20191105_060000.wav,User,2025-10-31 00:31:30,Basileuterus culicivorus,10.037985024323,10.525728951394,3.2549210943317,9.037674332276,bird - song,certain,complete,segmentation ,1024,50,24000,1
+./soundscapes/W54431S25613_20191105_060000.wav,W54431S25613_20191105_060000.wav,User,2025-10-31 00:31:34,Basileuterus culicivorus,29.165456326487,29.705929326755,3.1354427216469,8.7509262378325,bird - song,certain,complete,segmentation ,1024,50,24000,1

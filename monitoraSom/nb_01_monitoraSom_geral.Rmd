@@ -64,6 +64,8 @@ install_github("ConservaSom/monitoraSom", dependencies = TRUE)
 ```{r message=FALSE, warning=FALSE}
 library(monitoraSom)
 library(dplyr)
+library(ggplot2)
+library(patchwork)
 ```
 
 ### 9. Salvar esse script no diretório de trabalho conforme descrito no passo 4.
@@ -96,9 +98,7 @@ getwd() # Verificando se o diretório de trabalho foi definido corretamente
 ```
 
 ```{r eval=TRUE, echo=FALSE}
-project_path <- paste0(
-    getwd(), "/monitoraSom"
-)
+project_path <- paste0(getwd(), "/monitoraSom")
 setwd(project_path)
 getwd() # Verificando se o diretório de trabalho foi definido corretamente
 ```
@@ -195,12 +195,12 @@ Aqui você deve decidir: se deseja seguir com o processo simplificado (função 
 <!-- todo Definir os passos aqui -->
 
 ### 17. Obtendo as detecções (processo simplificado)
-Vamos usar o processo simplificado para obter as detecções. Esse processo é mais rápido e fácil, mas menos flexível. Ele é recomendado para projetos pequenos e para quem deseja obter rapidamente os resultados. Nesse caso vamos exportar os resultados para o arquivo "./detections/df_detections.csv" e usar 4 núcleos para processamento paralelo, para ganhar um pouco de velocidade.
+Vamos usar o processo simplificado para obter as detecções. Esse processo é mais rápido e fácil, mas menos flexível. Ele é recomendado para projetos pequenos e para quem deseja obter rapidamente os resultados. Nesse caso vamos exportar os resultados para o arquivo "./detections/df_detecs.csv" e usar 4 núcleos para processamento paralelo, para ganhar um pouco de velocidade.
 ```{r}
 template_matching(
     soundscapes_path = "./soundscapes/", # local de origem das soundscapes
     templates_path = "./templates/", # local de origem dos templates
-    output_file = "./detections/df_detections.csv", # resultado (detecções)
+    output_file = "./detections/df_detecs.csv", # resultado (detecções)
     ncores = 4
 )
 ```
@@ -221,13 +221,61 @@ df_soundscapes <- fetch_soundscape_metadata(
 glimpse(df_soundscapes)
 ```
 
+Visualizando rapidamente os espectrogramas das soundscapes para verificar se os arquivos foram importados corretamente.
+```{r eval=TRUE, echo=FALSE}
+cowplot::plot_grid(
+    tuneR::readWave(filename = df_soundscapes$soundscape_path[1]) %>%
+        fast_spectro(
+            rec = ., f = .@samp.rate, wl = 1024, ovlp = 70,
+            dyn_range = c(-102, -42), color_scale = "inferno",
+            freq_guide_interval = 0, time_guide_interval = 0,
+            tlim = c(0, 30)
+        ) +
+        theme_bw() +
+        theme(legend.position = "none"),
+    tuneR::readWave(filename = df_soundscapes$soundscape_path[4]) %>%
+        fast_spectro(
+            rec = ., f = .@samp.rate, wl = 1024, ovlp = 70,
+            dyn_range = c(-102, -42), color_scale = "inferno",
+            freq_guide_interval = 0, time_guide_interval = 0,
+            tlim = c(0, 30)
+        ) +
+        theme_bw() +
+        theme(legend.position = "none"),
+    ncol = 1
+)
+```
+
 ### 19. Processando os metadados dos templates (processo detalhado).
 Agora vamos importar os metadados dos templates.
 ```{r}
 df_templates <- fetch_template_metadata(
     templates_path = "./templates/", recursive = TRUE
 )
+df_templates <- head(df_templates, 2)
 glimpse(df_templates)
+```
+
+```{r eval=TRUE, echo=FALSE}
+templates_plots <- purrr::map(df_templates$template_path, ~ {
+    wav <- tuneR::readWave(filename = .x)
+    res <- fast_spectro(
+        rec = wav, f = wav@samp.rate, wl = 1024, ovlp = 70,
+        dyn_range = c(-102, -42), color_scale = "greyscale 1",
+        freq_guide_interval = 0, time_guide_interval = 0,
+        flim = c(
+            min(df_templates$template_min_freq),
+            max(df_templates$template_max_freq)
+        )
+    ) +
+        theme_bw() +
+        theme(legend.position = "none")
+    return(res)
+})
+cowplot::plot_grid(
+    templates_plots[[2]], templates_plots[[1]],
+    ncol = 2, rel_widths = c(1, 0.35)
+)
 ```
 
 ### 20. Juntando os metadados das soundscapes e dos templates (processo detalhado).
@@ -242,14 +290,15 @@ glimpse(df_grid)
 ### 21. Obtendo as detecções (processo detalhado)
 Agora vamos rodar o template matching usando a grade produzida acima como referência. Abaixo mostramos como rodar o template matching usando a função `run_matching()` e mais alguns recursos que essa função oferece.
 ```{r}
-df_detections <- run_matching(
+run_matching(
     df_grid = df_grid,
-    output_file = "./detections/df_detections.csv", # arquivo com as detecções
+    output_file = "./detections/df_detecs.csv", # arquivo com as detecções
     autosave_action = "replace", # ação ao salvar o arquivo
     buffer_size = "template", # buffer para evitar detecções sobrepostas
     ncores = 4 # quantidade de núcleos para processamento em paralelo
 )
-glimpse(df_detections)
+df_detecs <- read.csv(file = "./detections/df_detecs.csv")
+glimpse(df_detecs)
 ```
 
 Dentre as opções disponíveis para o argumento `autosave_action`, temos:
@@ -271,7 +320,7 @@ Outras opções de filtragem disponíveis são:
 ### 22. Caso especial: Obtendo os scores brutos.
 Vamos usar a função `run_matching()` para fazer as buscas na grade definida, exatamente como no passo 21, mas vamos adicionar o argumento `output = "scores"` para obter os scores brutos ao invés de ir direto para as detecções. Note que mudamos dois argumentos: `output` e `output_file`. `output` define o tipo de resultado que será retornado e `output_file` define o caminho para o arquivo de saída, que agora será um arquivo RDS em vez de CSV.
 ```{r}
-df_scores <- run_matching(
+run_matching(
     df_grid = df_grid,
     output = "scores", # arquivo com os scores brutos
     output_file = "./detections/df_scores.rds", # arquivo com os scores brutos
@@ -280,6 +329,204 @@ df_scores <- run_matching(
 glimpse(df_scores)
 ```
 
-### Checkpoint 04
-Você obteve as detecções, mas veja que ainda não sabe quais delas são verdadeiras e quais são falsas. Nesse checkpoint você poderá fazer fitragens adicionais às demonstradas no passo acima segundo os critérios do seu projeto.
+E importamos o arquivo de scores de volta para o ambiente de trabalho usando a função `readRDS()` seguindo o mesmo caminho do arquivo de saída. Ao inspecionar o objeto importado, vemos que ele retém todas as informações da grade de busca, mas agora com os scores brutos para cada combinação de template e soundscape armazenados como elementos de uma lista no lugar da coluna `score_vec`.
+```{r eval=FALSE}
+df_scores <- readRDS(file = "./detections/df_scores.rds")
+glimpse(df_scores)
+```
 
+Para entender melhor como os scores brutos são armazenados, vamos inspecionar o primeiro elemento da lista depositada na coluna `score_vec`. Note que one em um data frame normal seria um valor único, temos outro data frame composto por 2 variáveis, `time_vec`, contendo os valores de tempo em segundos para cada frame do espectrograma da soundscape, e `score_vec`, contendo os scores brutos computados para cada um desses frames.
+```{r}
+glimpse(df_scores$score_vec[[20]])
+```
+
+### 23. Visualizando os scores brutos.
+Vamos visualizar os scores brutos para poder entender melhor como as detecções foram produzidas. Notamos nessa primeira versão que precisamos de alguns ajustes para entender melhor o que está acontecendo.
+```{r}
+plot_scores(df_scores_i = df_scores[7, ])
+```
+
+Agora a mesma visualização, mas com os scores ajustados para melhor visualização.
+```{r}
+plot_scores(
+    df_scores_i = df_scores[8, ], ovlp = 90, wl = 1024,
+    dyn_range = c(-96, -48), color_scale = "inferno", zoom_time = c(0, 30)
+)
+```
+
+Mais um pouco de zoom agora para ver o pico correspondente a uma detecção mais promissora.
+```{r}
+plot_scores(
+    df_scores_i = df_scores[7, ], ovlp = 70, wl = 1024,
+    dyn_range = c(-96, -48), color_scale = "inferno", zoom_time = c(20, 25)
+)
+```
+
+Como as camadas de filtragem demonstradas no passo 21 ainda não foram aplicadas nesse caso, podemos experimentar as consequencias de aplica-las diretamente sobre os scores brutos nos proprios argumentos da função `plot_scores()`. Para isso vamos remover o zoom para ver o que está acontecendo em toda a extensão da soundscape. Nesse primeiro exemplo vamos deixar o buffer ativo e reter as 10 detecções com os scores mais altos.
+```{r}
+plot_scores(
+    df_scores_i = df_scores[7, ], ovlp = 70, wl = 1024,
+    dyn_range = c(-96, -48), color_scale = "inferno",
+    buffer_size = "template", top_n = 10
+)
+```
+
+Agora vamos desligar o buffer e reter somente as detecções com scores acima de 0.2. Podemos ver que nesse caso o limiar de 0.2 ainda não foi suficiente para eliminar todas as detecções que conseguimos ver que são claramente falsas.
+```{r}
+plot_scores(
+    df_scores_i = df_scores[7, ], ovlp = 70, wl = 1024,
+    dyn_range = c(-96, -48), color_scale = "inferno",
+    buffer_size = 0, min_score = 0.2
+)
+```
+
+Podemos subir o limiar para 0.287 e ver que agora as detecções falsas foram eliminadas.
+```{r}
+plot_scores(
+    df_scores_i = df_scores[7, ], ovlp = 70, wl = 1024,
+    dyn_range = c(-96, -48), color_scale = "inferno",
+    buffer_size = 0, min_score = 0.287
+)
+```
+
+Mas... Se usarmos o mesmo limiar para outro match, podemos verificar que ele foi suficiente para eliminar todas as detecções falsas. Note também que apesar disso ainda temos muitos picos sobrepostos, já que o filtro de buffer foi desligado.
+```{r}
+plot_scores(
+    df_scores_i = df_scores[9, ], ovlp = 70, wl = 1024,
+    dyn_range = c(-96, -48), color_scale = "inferno",
+    buffer_size = 0, min_score = 0.287
+)
+```
+
+A avaliação visual ajuda no ajuste inicial, mas não basta para escolher o melhor limiar. É preciso validar as detecções para definir o corte ideal de score para todo o conjunto de soundscapes. Antes prosseguir, vamos extrair as detecções desejadas a partir do arquivo de scores brutos, mas agora retendo todas as detecções, sem aplicar nenhum filtro. Note que temos 41,732 detecções no total.
+
+```{r}
+df_detecs_nofilt <- fetch_score_peaks(
+    df_scores = df_scores,
+    buffer_size = 0,
+    output_file = "./detections/df_detecs_nofilt.csv"
+)
+glimpse(df_detecs_nofilt)
+```
+
+
+### Checkpoint 04
+Você obteve as detecções, mas veja que ainda não sabe quais são verdadeiras ou falsas. Nesse checkpoint você poderá fazer fitragens adicionais às demonstradas no passo acima segundo os critérios do seu projeto. Nesse ponto será necessário determinar qual método de validação será usado.
+
+### 23. Validando as detecções (método a priori)
+O método de validação a priori é o mais completo e rápido, pois é baseado na sobreposição temporal entre as detecções e as ROIs para a classificação de cada detecção como verdadeira ou falsa. Esse método é recomendado sempre que dados de segmentação estiverem disponíveis, pois permite a contagem correta de FN (False Negatives), a partir das ROIs que não foram alcançadas por nenhuma detecção. Nesse caso vamos usar a função `validate_by_overlap()` para validar as detecções.
+```{r}
+df_validated <- validate_by_overlap(
+    df_detecs = df_detecs, df_rois = df_rois, validation_user = "User"
+)
+glimpse(df_validated)
+```
+
+### 24. Checagens sanitárias das detecções validadas.
+Inspecionando o objeto com os resultados da validação, podemos ver todas as variáveis da tabela de detecções, mas agora também agregamos dados sobre as ROIs para os casos de correspondência, revelando todos os pares de detecção x ROI, bem como as ROIs que não foram alcançadas por nenhuma detecção. O status de cada detecção é armazenado na coluna `validation`, que pode ter os valores `TP` (verdadeiro positivo ou detecção confirmada ), `FP` (falso positivo ou detecção falsa) ou `FN` (falso negativo ou detecção não alcançada). Vejamos as contagens dessa classificação para cada template.
+```{r}
+table(df_validated$validation, df_validated$template_name)
+```
+
+Mas antes disso, vamos relembrar a quantidade de detecções que obtivemos com cada método. A versão não filtrada tem 41,732 detecções, enquanto a versão filtrada tem 4,363 detecções..
+```{r}
+nrow(df_detecs)
+nrow(df_detecs_nofilt)
+```
+
+É importante ressaltar que tanto `df_detecs`, sua versão não filtrada, quanto `df_validated`, reunem as detecções e detecções validades de todos os templates de forma agregada, apesar dos processos serem computados separadamente para cada template.
+
+Vamos comparar o desempenho do método de validação a priori em diferentes cenários. Ao aplicar a validação na versão filtrada das detecções, temos um processo rápido devido à menor quantidade de detecções (cerca de 806). Já na versão não filtrada, o número de detecções é mais de 14 vezes maior (11436), e, ainda assim, o tempo de processamento apenas dobrou. Isso mostra que mesmo trabalhando com grandes volumes de dados, a validação automática foi concluída em menos de um segundo. Portanto, além de permitir a validação da totalidade das detecções, a abordagem automatizada elimina a necessidade de checagem manual, sendo muito mais ágil e prática do que o método manual (a posteriori), apresentado a seguir. Por isso, nós, os desenvolvedores, recomendamos o uso do método de validação a priori sempre que possível.
+```{r}
+# Cronometrando o tempo de processamento da validação das detecs filtradas
+system.time({
+    validate_by_overlap(
+        df_detecs = df_detecs, df_rois = df_rois, validation_user = "User"
+    )
+})
+# Cronometrando o tempo de processamento da validação das detecs não filtradas
+system.time({
+    validate_by_overlap(
+        df_detecs = df_detecs_nofilt, df_rois = df_rois, validation_user = "User"
+    )
+})
+```
+
+### 25. Validando as detecções (método a posteriori)
+Quando não temos dados de segmentação manual, podemos validar as detecções manualmente. Nesse caso vamos usar o app de validação manual do monitoraSom. Mas antes de prosseguir, vamos fazer uma cópia da tabela de detecções para não perdermos os dados originais.
+```{r eval=FALSE}
+file.copy(
+    from = "./detections/df_detecs.csv",
+    to = "./detections/df_detecs_aposteriori.csv",
+    overwrite = FALSE # para evitar sobrescrever a cópia, caso já exista
+)
+```
+
+Agora vamos usar o app de validação manual para validar as detecções.
+```{r}
+launch_validation_app(
+    project_path = ".", validation_user = "User",
+    templates_path = "./templates/", soundscapes_path = "./soundscapes/",
+    input_path = "./detections/df_detecs_aposteriori.csv",
+    output_path = "./detections/df_detecs_aposteriori.csv",
+    dyn_range_templ = c(-78, -30), dyn_range_detec = c(-78, -30), wl = 1024,
+    ovlp = 70, time_guide_interval = 0, freq_guide_interval = 0,
+    overwrite = TRUE
+)
+```
+
+### 26. Importando e inspecionando os resultados da validação a posteriori.
+Agora vamos importar o arquivo de detecções validadas de volta para o ambiente de trabalho usando a função `read.csv()` seguindo o mesmo caminho do arquivo de saída.
+```{r}
+df_detecs_aposteriori <- read.csv(file = "./detections/df_detecs_aposteriori.csv")
+glimpse(df_detecs_aposteriori)
+```
+
+NV = not validated
+```{r}
+table(df_detecs_aposteriori$validation, df_detecs_aposteriori$template_name)
+```
+
+### 27. Comparando os resultados das validações a priori e a posteriori.
+Vamos comparar os resultados das validações a priori e a posteriori.
+```{r}
+df_rois %>%
+    filter(!grepl("Bcu", soundscape_file)) %>%
+    nrow()
+
+nrow(df_detecs_aposteriori)
+table(df_detecs_aposteriori$validation, df_detecs_aposteriori$template_name)
+```
+
+### 28. Diagnósticos de performance.
+
+Quando trabalhamos com detecção automática, especialmente utilizando métodos como template matching, é fundamental avaliar métricas de performance como a precision (precisão) e recall ou sensitivity (sensibilidade). A precisão quantifica quantas das detecções obtidas estão corretas, enquanto o recall mede quantas das ocorrências dos sinais alvo foram de fato detectadas.
+
+Essas métricas geralmente apresentam uma relação de toma-lá-dá-cá: aumentar o limiar para considerar detecções verdadeiras pode aumentar a precisão (menos FP), mas também pode diminuir o recall (mais FN). Por outro lado, abaixar o limiar pode aumentar o recall mas reduzir a precisão. Portanto, avaliar os resultados em termos de precision e recall é essencial para escolher o limiar ideal do template matching para seu objetivo, seja ele minimizar falsos positivos, maximizar a recuperação de eventos ou buscar um equilíbrio entre ambos.
+
+A função `diagnostic_validations()` produz uma lista com os diagnósticos de performance para cada template.
+```{r}
+ls_val_apriori <- diagnostic_validations(
+    df_validated = df_validated, pos_prob = 0.8, val_a_priori = TRUE
+)
+# Separando os resultados para cada template
+res_template1 <- ls_val_apriori[[1]]
+res_template2 <- ls_val_apriori[[2]]
+```
+
+Inspecionando os diagnósticos de performance para cada template. Os dataframes contém todas as métricas de performance para cada template em função dos limiares de score avaliados.
+```{r}
+res_template1$diagnostics %>% glimpse()
+res_template2$diagnostics %>% glimpse()
+```
+
+Nos resultados de cada templates também temos disponíveis os gráficos de métricas de performance em função dos limiares de score avaliados. Na primeira coluna temos os dados do primeiro template, aquele composto somete pela parte final do canto, enquanto na segunda coluna temos os dados do segundo template, aquele composto pelo canto completo. Na primeira linha temos os gráficos dos modelos binomiais, nos quais definimos o score com a probabilidade posterior de 95% da detecção ser verdadeira. Na segunda linha mostramos os gráficos de precisão e recall em função dos limiares de score avaliados. Em todos os casos as linhas vermelhas representam os níveis de score selecionados para cada template
+```{r}
+cowplot::plot_grid(
+    res_template1$mod_plot, res_template2$mod_plot,
+    res_template1$precrec_plot, res_template2$precrec_plot,
+    ncol = 2
+)
+```
+
+### 29. Obtendo o conjunto final de detecções.
