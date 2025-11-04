@@ -416,7 +416,6 @@ detection_plots2 <- detecs_csong %>%
     }, .progress = TRUE)
 length(detection_plots2)
 
-
 cowplot::plot_grid(
     detection_plots2[[1]], detection_plots2[[2]],
     detection_plots2[[3]], detection_plots2[[4]],
