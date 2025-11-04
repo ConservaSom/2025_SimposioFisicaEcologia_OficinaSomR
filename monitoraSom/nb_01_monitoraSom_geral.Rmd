@@ -165,7 +165,7 @@ Agora vamos usar o app de segmentação para segmentar as soundscapes. Nessa eta
 launch_segmentation_app(
     user = "User", project_path = "./", preset_path = "./app_presets/",
     soundscapes_path = "./soundscapes/", roi_tables_path = "./roi_tables/",
-    cuts_path = "./roi_cuts/", dyn_range = c(-102, -42), wl = 1024, ovlp = 50,
+    dyn_range = c(-102, -42), wl = 1024, ovlp = 50,
     color_scale = "greyscale 1", visible_bp = TRUE, nav_autosave = TRUE
 )
 ```
@@ -173,14 +173,17 @@ launch_segmentation_app(
 ### 15. Preparando os templates.
 Vamos importar todas as tabelas de ROIs para verificarmos se temos o que precisamos. Note que as tabelas de ROIs das soundscapes e dos templates encontram-se na mesma pasta, mas podemos discriminá-las facilmentepelo nome do arquivo.
 ```{r}
-df_templates <- fetch_rois(rois_path = "./roi_tables/")
-unique(df_templates$soundscape_file) # Verificando os nomes das gravações
+df_rois <- fetch_rois(rois_path = "./roi_tables/")
+unique(df_rois$soundscape_file) # Verificando os nomes das gravações
 ```
 
 Filtrando as tabelas de ROIs para manter somente aquelas com os templates.
 ```{r}
-df_templates <- df_templates[grepl("Substructure C", df_templates$roi_comment), ]
-unique(df_templates$soundscape_file) # Verificando os nomes das grava<U+00E7><U+00F5>es
+df_templates <- df_rois %>%
+    filter(roi_comment %in% c("Substructure C", "Complete Song")) %>%
+    group_by(roi_comment) %>%
+    sample_n(1)
+glimpse(df_templates)
 ```
 
 ### 16. Exportando os cortes de audio dos templates.
@@ -252,7 +255,6 @@ Agora vamos importar os metadados dos templates.
 df_templates <- fetch_template_metadata(
     templates_path = "./templates/", recursive = TRUE
 )
-df_templates <- head(df_templates, 2)
 glimpse(df_templates)
 ```
 
@@ -273,7 +275,7 @@ templates_plots <- purrr::map(df_templates$template_path, ~ {
     return(res)
 })
 cowplot::plot_grid(
-    templates_plots[[2]], templates_plots[[1]],
+    templates_plots[[1]], templates_plots[[2]],
     ncol = 2, rel_widths = c(1, 0.35)
 )
 ```
@@ -311,8 +313,7 @@ Dentre as opções disponíveis para o argumento `buffer_size`, temos:
 - 0: desliga o buffer, permitindo detecções sobrepostas em uma região de mesma duração do template. Essa opção é recomendada somente para projetos em que a validação não será realizada manualmente, já que retém muitas detecções redundantes.
 
 Outras opções de filtragem disponíveis são:
-- `min_score`: define o score mínimo para detecção. Essa opção determina um limiar mínimo para a detecção, excluindo todas as detecções com scores inferiores ao valor especificado. Deve ser usada com cuidadado, pois pode eliminar completamente soundscapes e templates sem scores acima do limiar especificado, e assim eliminar a possibilidade de contagem correta de FN (False Negatives) para validação a priori (ver passo XX).
-  <!-- todo Definir o passo de validação a priori -->
+- `min_score`: define o score mínimo para detecção. Essa opção determina um limiar mínimo para a detecção, excluindo todas as detecções com scores inferiores ao valor especificado. Deve ser usada com cuidadado, pois pode eliminar completamente soundscapes e templates sem scores acima do limiar especificado, e assim eliminar a possibilidade de contagem correta de FN (False Negatives) para validação a priori (ver passo 23).
 - `min_quant`: define o quantil mínimo para detecção. Essa opção avalia o quantil dentro de cada rodada de busca, excluindo todas as detecções com scores inferiores ao quantil especificado. Como o quantil é uma medida relativa, retornará sempre ao menos uma detecção para cada rodada de busca.
 - `top_n`: define de forma explícita a quantidade de detecções com os scores mais altos a serem retidas. Essa opção retornará sempre a quantidade de detecções especificada, independente do valor máximo e mínimo de scores obtidos.
 
@@ -349,8 +350,8 @@ plot_scores(df_scores_i = df_scores[7, ])
 Agora a mesma visualização, mas com os scores ajustados para melhor visualização.
 ```{r}
 plot_scores(
-    df_scores_i = df_scores[8, ], ovlp = 90, wl = 1024,
-    dyn_range = c(-96, -48), color_scale = "inferno", zoom_time = c(0, 30)
+    df_scores_i = df_scores[7, ], ovlp = 90, wl = 1024,
+    dyn_range = c(-96, -48), color_scale = "inferno"
 )
 ```
 
@@ -358,7 +359,7 @@ Mais um pouco de zoom agora para ver o pico correspondente a uma detecção mais
 ```{r}
 plot_scores(
     df_scores_i = df_scores[7, ], ovlp = 70, wl = 1024,
-    dyn_range = c(-96, -48), color_scale = "inferno", zoom_time = c(20, 25)
+    dyn_range = c(-96, -48), color_scale = "inferno", zoom_time = c(5, 10)
 )
 ```
 
@@ -367,34 +368,24 @@ Como as camadas de filtragem demonstradas no passo 21 ainda não foram aplicadas
 plot_scores(
     df_scores_i = df_scores[7, ], ovlp = 70, wl = 1024,
     dyn_range = c(-96, -48), color_scale = "inferno",
-    buffer_size = "template", top_n = 10
+    buffer_size = "template", top_n = 6
 )
 ```
 
-Agora vamos desligar o buffer e reter somente as detecções com scores acima de 0.2. Podemos ver que nesse caso o limiar de 0.2 ainda não foi suficiente para eliminar todas as detecções que conseguimos ver que são claramente falsas.
+Agora vamos desligar o buffer e reter somente as detecções com scores acima de 0.1. Podemos ver que nesse caso o limiar de 0.1 ainda não foi suficiente para eliminar todas as detecções que conseguimos ver que são claramente falsas.
 ```{r}
 plot_scores(
     df_scores_i = df_scores[7, ], ovlp = 70, wl = 1024,
     dyn_range = c(-96, -48), color_scale = "inferno",
-    buffer_size = 0, min_score = 0.2
+    buffer_size = 0, min_score = 0.1
 )
 ```
 
-Podemos subir o limiar para 0.287 e ver que agora as detecções falsas foram eliminadas.
 ```{r}
 plot_scores(
-    df_scores_i = df_scores[7, ], ovlp = 70, wl = 1024,
+    df_scores_i = df_scores[11, ], ovlp = 70, wl = 1024,
     dyn_range = c(-96, -48), color_scale = "inferno",
-    buffer_size = 0, min_score = 0.287
-)
-```
-
-Mas... Se usarmos o mesmo limiar para outro match, podemos verificar que ele foi suficiente para eliminar todas as detecções falsas. Note também que apesar disso ainda temos muitos picos sobrepostos, já que o filtro de buffer foi desligado.
-```{r}
-plot_scores(
-    df_scores_i = df_scores[9, ], ovlp = 70, wl = 1024,
-    dyn_range = c(-96, -48), color_scale = "inferno",
-    buffer_size = 0, min_score = 0.287
+    buffer_size = "template", min_score = 0.1
 )
 ```
 
@@ -408,7 +399,6 @@ df_detecs_nofilt <- fetch_score_peaks(
 )
 glimpse(df_detecs_nofilt)
 ```
-
 
 ### Checkpoint 04
 Você obteve as detecções, mas veja que ainda não sabe quais são verdadeiras ou falsas. Nesse checkpoint você poderá fazer fitragens adicionais às demonstradas no passo acima segundo os critérios do seu projeto. Nesse ponto será necessário determinar qual método de validação será usado.
@@ -436,7 +426,7 @@ nrow(df_detecs_nofilt)
 
 É importante ressaltar que tanto `df_detecs`, sua versão não filtrada, quanto `df_validated`, reunem as detecções e detecções validades de todos os templates de forma agregada, apesar dos processos serem computados separadamente para cada template.
 
-Vamos comparar o desempenho do método de validação a priori em diferentes cenários. Ao aplicar a validação na versão filtrada das detecções, temos um processo rápido devido à menor quantidade de detecções (cerca de 806). Já na versão não filtrada, o número de detecções é mais de 14 vezes maior (11436), e, ainda assim, o tempo de processamento apenas dobrou. Isso mostra que mesmo trabalhando com grandes volumes de dados, a validação automática foi concluída em menos de um segundo. Portanto, além de permitir a validação da totalidade das detecções, a abordagem automatizada elimina a necessidade de checagem manual, sendo muito mais ágil e prática do que o método manual (a posteriori), apresentado a seguir. Por isso, nós, os desenvolvedores, recomendamos o uso do método de validação a priori sempre que possível.
+Vamos comparar o desempenho do método de validação a priori em diferentes cenários. Ao aplicar a validação na versão filtrada das detecções, temos um processo rápido devido à menor quantidade de detecções. Já na versão não filtrada, o número de detecções é consideravelmente maior, e, ainda assim, o tempo de processamento permaneceu eficiente. Isso mostra que mesmo trabalhando com grandes volumes de dados, a validação automática ocorre de forma muito rápida. Portanto, além de permitir a validação da totalidade das detecções, a abordagem automatizada elimina a necessidade de checagem manual, sendo muito mais ágil e prática do que o método manual (a posteriori), apresentado a seguir. Por isso, nós, os desenvolvedores, recomendamos o uso do método de validação a priori sempre que possível.
 ```{r}
 # Cronometrando o tempo de processamento da validação das detecs filtradas
 system.time({
@@ -478,13 +468,17 @@ launch_validation_app(
 ### 26. Importando e inspecionando os resultados da validação a posteriori.
 Agora vamos importar o arquivo de detecções validadas de volta para o ambiente de trabalho usando a função `read.csv()` seguindo o mesmo caminho do arquivo de saída.
 ```{r}
-df_detecs_aposteriori <- read.csv(file = "./detections/df_detecs_aposteriori.csv")
+df_detecs_aposteriori <- read.csv(
+    file = "./detections/df_detecs_aposteriori.csv"
+)
 glimpse(df_detecs_aposteriori)
 ```
 
 NV = not validated
 ```{r}
-table(df_detecs_aposteriori$validation, df_detecs_aposteriori$template_name)
+table(
+    df_detecs_aposteriori$validation, df_detecs_aposteriori$template_name
+)
 ```
 
 ### 27. Comparando os resultados das validações a priori e a posteriori.
@@ -507,7 +501,7 @@ Essas métricas geralmente apresentam uma relação de toma-lá-dá-cá: aumenta
 A função `diagnostic_validations()` produz uma lista com os diagnósticos de performance para cada template.
 ```{r}
 ls_val_apriori <- diagnostic_validations(
-    df_validated = df_validated, pos_prob = 0.8, val_a_priori = TRUE
+    df_validated = df_validated, pos_prob = 0.95, val_a_priori = TRUE
 )
 # Separando os resultados para cada template
 res_template1 <- ls_val_apriori[[1]]
@@ -530,3 +524,94 @@ cowplot::plot_grid(
 ```
 
 ### 29. Obtendo o conjunto final de detecções.
+
+```{r}
+res_template1$score_cut
+
+res_template2$score_cut
+
+detecs1 <- df_detecs %>%
+    filter(
+        template_name == res_template1$diagnostics$template_name[1] &
+        peak_score >= res_template1$score_cut
+    ) %>%
+    glimpse()
+
+detecs2 <- df_detecs %>%
+    filter(
+        template_name == res_template2$diagnostics$template_name[1] &
+        peak_score >= res_template2$score_cut
+    ) %>%
+    glimpse()
+
+```
+
+```{r}
+
+detection_plots1 <- detecs1 %>%
+    split(., seq(nrow(.))) %>%
+    purrr::map(., ~ {
+        wav <- tuneR::readWave(
+            filename = .x$soundscape_path, from = .x$detection_start, to = .x$detection_end, units = "seconds"
+        )
+        res <- fast_spectro(
+            rec = wav, f = wav@samp.rate, wl = 1024, ovlp = 70,
+            dyn_range = c(-102, -42), color_scale = "greyscale 1",
+            freq_guide_interval = 0, time_guide_interval = 0,
+            zoom_freq = c(
+                .x$template_min_freq,
+                .x$template_max_freq
+            )
+        ) +
+            theme_bw() +
+            theme(legend.position = "none")
+        return(res)
+    }, .progress = TRUE)
+length(detection_plots1)
+
+
+cowplot::plot_grid(
+    detection_plots1[[1]], detection_plots1[[2]],
+    detection_plots1[[3]],
+    # detection_plots1[[4]],
+    # detection_plots1[[5]], detection_plots1[[6]],
+    ncol = 3
+)
+```
+
+
+```{r}
+
+detection_plots2 <- detecs2 %>%
+    split(., seq(nrow(.))) %>%
+    purrr::map(., ~ {
+        wav <- tuneR::readWave(
+            filename = .x$soundscape_path, from = .x$detection_start, to = .x$detection_end, units = "seconds"
+        )
+        res <- fast_spectro(
+            rec = wav, f = wav@samp.rate, wl = 1024, ovlp = 70,
+            dyn_range = c(-102, -42), color_scale = "greyscale 1",
+            freq_guide_interval = 0, time_guide_interval = 0,
+            zoom_freq = c(
+                .x$template_min_freq,
+                .x$template_max_freq
+            )
+        ) +
+            theme_bw() +
+            theme(legend.position = "none")
+        return(res)
+    }, .progress = TRUE)
+length(detection_plots2)
+
+
+cowplot::plot_grid(
+    detection_plots2[[1]], detection_plots2[[2]],
+    detection_plots2[[3]], detection_plots2[[4]],
+    detection_plots2[[5]], detection_plots2[[6]],
+    detection_plots2[[7]], detection_plots2[[8]],
+    detection_plots2[[9]], detection_plots2[[10]],
+    # detection_plots2[[11]], detection_plots2[[12]],
+    # detection_plots2[[13]],
+    ncol = 5
+)
+```
