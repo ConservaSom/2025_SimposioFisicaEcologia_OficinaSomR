@@ -1,0 +1,300 @@
+---
+title: "_soundmeteR_: pacote em R para calcular níveis de pressão e intensidade sonora"
+subtitle: "Roteiro para a oficina do I Simpósio de Física aplicada à Ecologia e Conservação"
+author: "Cássio Rachid Simões (cassiorachid@conservasom.com.br)"
+date: "`r Sys.Date()`"
+output: 
+  pdf_document: 
+    toc: yes
+    toc_depth: 5
+    number_sections: yes
+---
+
+<style>
+body {
+text-align: justify}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+```
+
+# Introdução
+
+Este é um roteiro apresentando o fluxo de análises utilizando o pacote _soundmeteR_. O presente documento foi idealizado para a oficina realizada durante o I Simpósio de Física aplicada à Ecologia e Conservação, realizado em novembro de 2025 em Foz do Iguaçu-PR.
+
+Todos os códigos apresentados neste roteiro devem ser executados no R. Você pode usar RStudio, VS Code (com suporte a R) ou outra interface gráfica de sua preferência. Recomenda-se especialmente o uso do RStudio, por ser uma interface intuitiva e amplamente adotada pela comunidade R.
+
+# Preparação do ambiente
+
+O fluxo de trabalho apresentado nesse documento foi pensado de maneira que os participantes possam tanto acompanhar as etapas de análise utilizando seus próprios computadores durante a oficina quanto executar de forma independente após participarem da oficina. Para isso, é necessário que os participantes tenham o _R_, versão do _Rtools_ equivalente e o _Rstudio_ instalados e atualizados em suas máquinas.
+
+Atualmente, o pacote _soundmeteR_ está disponível apenas no repositório oficial do GitHub (https://github.com/ConservaSom/soundmeteR) e para instalá-lo será necessário também a instalação do pacote _devtools_, que é utilizado para instalar pacotes diretamente do GitHub.
+
+Nos tópicos a seguir estão descritas as etapas para a preparação do ambiente de análise.
+
+## Programas necessários
+
+Os programas necessários para a instalação e utilização do _soundmeteR_ são:
+
+- _R_: https://cran.r-project.org/
+- _Rstudio_: https://posit.co/download/rstudio-desktop/
+- _Rtools_ (apenas para usuários Windows): https://cran.r-project.org/bin/windows/Rtools/
+
+## Instalação do _devtools_
+
+O _devtools_ é um pacote essencial para usuários avançados de R, pois permite a instalação de pacotes que ainda não foram publicados no CRAN (o repositório oficial do R). Para instalá-lo, basta executar o comando comando abaixo dentro do R ou Rstudio:
+
+```{r eval=FALSE}
+install.packages("devtools")
+```
+
+## Instalação do _soundmeteR_
+
+É possível encontrar as instruções de instalação do _soundmeteR_ no repositório oficial do GitHub (https://github.com/ConservaSom/soundmeteR), mas para facilitar o processo, basta executar o código abaixo para instalar o _soundmeteR_ e suas dependências:
+
+```{r eval=FALSE}
+devtools::install_github("ConservaSom/soundmeteR")
+```
+
+Para verificar se o _soundmeteR_ foi instalado corretamente, basta carregar o pacote utilizando o comando abaixo (nenhuma mensagem de erro deve ser exibida):
+```{r eval=FALSE}
+library("soundmeteR")
+```
+
+# Visão geral do _soundmeteR_
+
+O pacote _soundmeteR_ é uma ferramenta desenvolvida em R para extração de valores de energia sonora (pressão e intensidade) a partir de gravações em formato Wave (_.wav_). Ele oferece uma série de funções relacionadas ao fluxo de trabalho para obtenção destas medidas, incluindo a possibilidade de calibração para o cálculo de níveis absolutos de pressão e intensidade e aplicação de curvas de ponderação de frequências (curvas A, B C, Z).  O pacote vem sendo aplicado em fluxos de trabalhos e nas análises alguns artigo científicos a alguns anos e atualmente está em fase final de desenvolvimento e preparação do manuscrito. Abaixo estão as funções principais e uma breve descrição de suas funcionalidades. O arquivo PDF do manual do pacote disponibilizado no GitHub (https://github.com/ConservaSom/soundmeteR) contém uma descrição detalhada de todas as funções disponíveis.
+
+```{r tabela-funções, echo = FALSE}
+# Bloco de código oculto. Apenas para construção da tabela no documento final
+matrix(
+  dimnames = list(
+    NULL, # nomes das linhas
+    c("Função", "Descrição") # nomes das colunas
+  ),
+  data = c(
+    "leqbands", "Calcula o Nível Sonoro Equivalente (Leq) para arquivos para para um arquivos Wave em oitavas ou terças de oitavas",
+    "leqbands_cal", "O mesmo que o *leqbands*, porém permite a calibração a partir de um sinal de referência dentro do mesmo arquivo Wave",
+    "soundmeter", "Computa medidas similares às de um decibelímetro a partir de arquivos Wave, permitindo a escolha da janela de amostragem (fast ou slow) e apresenta medidas comumente encontradas nestes tipos de equipamentos como Leq, L10, L50, L90, Lmax, entre outras"
+  ),
+  ncol = 2,
+  byrow = TRUE
+) %>%
+  knitr::kable(format = "markdown") %>%
+  kableExtra::kable_classic() %>%
+  kableExtra::column_spec(2, width = "30em")
+```
+
+# Exemplos de uso
+
+## Carregando os pacotes e o arquivos de exemplo
+
+Carregando os pacotoes necessários:
+```{r eval = FALSE}
+# carregar o pacote soundmeteR
+library(soundmeteR)
+# Carregar o monitoraSom
+library(monitoraSom)
+# caregando seewave para visualização do sonogramas
+library(seewave)
+# carregando tuneR para manipulação de arquivos Wave
+library(tuneR)
+# Carregando dplyr para manipulação dos datasets
+library(dplyr)
+# Carregando ggplot2 para manipulação de gráfcos
+library(ggplot2)
+```
+
+Carregando o exemplo interno do pacote e visualizando o espectrograma. O exemplo é um canto de um _Thamnophilus stictocephalus_ em uma gravação calibrada.
+```{r eval = FALSE}
+# Carregando aquivo de exemplo do pacote soundmeteR (Thamnophilus stictocephalus)
+data(tham)
+
+# Corte do trecho do arquivo em que o canto da espécie aparece
+som <- cutw(
+  tham,
+  from = 3.5, # zoom no tempo para o momento que o canto da espécies aparece
+  to = 7.2,
+  output = "Wave"
+)
+
+# verificando o arquivo
+som
+
+
+# Espectrograma do arquivo de exemplo
+spectro(
+  som,
+  flim = c(0, 8), # zoom na frequência
+  scale = FALSE
+)
+```
+
+Escutando o arquivo. Algumas máquinas e sistemas operacionais podem necessitar que você defina o reprodutor de áudio com a função `setWavPlayer()` do pacote _tuneR_.
+```{r eval = FALSE}
+# Caso queira escutar o arquivo
+listen(
+  som
+)
+```
+
+## Aplicações do _soundmeteR_ em gravações não calibradas
+
+A função `leqbands()` calcula o nível sonoro equivalente (Leq) em bandas de oitavas ou terças de oitavas para arquivos Wave. Quando utilizado em gravações não calibradas, a função retorna os valores em dBFS (decibéis em full scale -  relativo ao ponto de distorção em 0 dB).
+```{r eval = FALSE}
+# Leq por oitavas
+leqbands(
+  som,
+  band = "octaves", # bandas de frequência utilizadas
+  weighting = "A" # curva de ponderação de frequências
+)
+
+# Leq por terças de oitavas
+leqbands(
+  som,
+  band = "thirds", # bandas de frequência utilizadas
+  weighting = "A" # curva de ponderação de frequências
+)
+```
+
+A função `soundmeter()` calcula diversas medidas de níveis sonoros similares às medidas obtidas por um decibelímetro. Quando utilizado em gravações não calibradas, a função retorna os valores em dBFS (decibéis em full scale -  relativo ao ponto de distorção em 0 dB).
+```{r eval = FALSE}
+# soundmeter por oitavas
+soundmeter(
+  som,
+  tw = "fast", # ponderação temporal "fast" ou "slow"
+  fw = "A", # curva de ponderação de frequências
+  bands =  "octaves" # bandas de frequência utilizadas
+)
+
+# soundmeter por terças de oitavas
+soundmeter(
+  som,
+  tw = "fast", # ponderação temporal "fast" ou "slow"
+  fw = "A", # curva de ponderação de frequências
+  bands =  "thirds" # bandas de frequência utilizadas
+)
+```
+
+## Aplicação do _soundmeteR_ em gravações com calibração
+
+Para aplicar a calibração é necessário extrair o valor a partir de uma gravação com sinal de referência ou das especificações do aparelho e microfone utilizados. Aqui, realizaremos o a partir de uma gravação de um sinal de referência com pressão sonora conhecida.
+
+```{r eval = FALSE}
+# definindo diretório de trabalho
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+
+# lendo o arquivo de calibração
+calib <- readWave("./calibration/calibration.wav")
+
+# plotando no espectro
+spectro(
+  calib,
+  scale = F
+)
+
+# extraindo valor de calibração
+calib_value <- calibration(
+  file = calib,
+  channel = "left",
+  leqsignal = 94
+) %>%
+  print()
+```
+
+Nesse momento utilizaremos o resultado obtido ao final da prática realizada com o pacote _monitoraSom_ no turno anterior para obter valores de pressão sonora para as detecções de _Basileuterus culicivorus_.
+
+Precisamos abrir o app de validação do _monitoraSom_ para selecionar as detecções de cantos que não tenham sobreposição com ruído de fundo. Esta ação é necessária pois o ruído pode interferir nas medidas de pressão sonora, gerando valores incoerentes com a realidade.
+```{r eval = FALSE}
+launch_validation_app(
+    project_path = ".", validation_user = "User",
+    templates_path = "./templates/", soundscapes_path = "./soundscapes/",
+    input_path = "./detections/df_detecs_soundmeter.csv",
+    output_path = "./detections/df_detecs_soundmeter.csv",
+    dyn_range_templ = c(-78, -30), dyn_range_detec = c(-78, -30), wl = 1024,
+    ovlp = 70, time_guide_interval = 0, freq_guide_interval = 0,
+    overwrite = TRUE
+)
+```
+
+Agora, com o resultado da filtragem acima, vamos ler a planilha com as detecções de interesse para, em seguida, extrair os valores de pressão sonora. Aqui, já filtramos apenas as gravações que identificamos como úteis para a extração da pressão sonora.
+```{r eval = FALSE}
+detections <- read.csv(
+  "./detections/df_detecs_soundmeter.csv" # planilha com as detecções
+) %>%
+  filter(
+    validation == "TP" # filtro dos arquivos úteis
+  ) %>%
+  print()
+
+```
+
+Calculando as medidas de pressão sonora de cada detecção com a função `soundmeter`. 
+```{r eval = FALSE}
+spl <- soundmeter(
+  files = detections$soundscape_path, # lista dos arquivos com o paths
+  channel = "left", # canal da gravação a ser utilizado
+  from = detections$detection_start, # tempo de início da detecção
+  to = detections$detection_end, # tempo final da detecção
+  CalibValue = calib_value, # fator de calibração obtido anteriormente
+  tw = "fast", # janela de ponderação do tempo
+  fw = "A", # curva de ponderação de frequência
+  bandpass = c(500,10000) # filtro de passagem de banda
+) %>%
+  print()
+```
+
+O resultado da função será colocado
+```{r eval = FALSE}
+# spl <- spl %>%
+#   arrange(LAmax) %>%
+#   print()
+
+detections <- detections %>%
+  mutate(
+    LAmax = spl$LAmax
+  ) %>%
+  arrange(LAmax) %>%
+  print()
+
+layout(matrix(1:10, nrow = 2, byrow = TRUE))
+
+detection_plots1 <- detections %>%
+    split(., seq(nrow(.))) %>%
+    purrr::map(., ~ {
+        wav <- tuneR::readWave(
+          filename = .x$soundscape_path,
+          from = .x$detection_start,
+          to = .x$detection_end,
+          units = "seconds"
+        )
+        res <- fast_spectro(
+          rec = wav, f = wav@samp.rate, wl = 512, ovlp = 70,
+          dyn_range = c(-102, -42), color_scale = "greyscale 1",
+          freq_guide_interval = 0, time_guide_interval = 0,
+          zoom_freq = c(
+            .x$template_min_freq,
+            .x$template_max_freq
+          )
+        ) +
+          theme_bw() +
+          theme(legend.position = "none") +
+          ggtitle( paste0(.x$LAmax, " dB"))
+        return(res)
+    }, .progress = TRUE)
+
+length(detection_plots1)
+
+
+cowplot::plot_grid(
+  detection_plots1[[1]], detection_plots1[[2]],
+    detection_plots1[[3]], detection_plots1[[4]],
+    detection_plots1[[5]], detection_plots1[[6]],
+    detection_plots1[[6]], detection_plots1[[7]],
+    detection_plots1[[8]], detection_plots1[[9]],
+  nrow = 2
+)
+
+```
