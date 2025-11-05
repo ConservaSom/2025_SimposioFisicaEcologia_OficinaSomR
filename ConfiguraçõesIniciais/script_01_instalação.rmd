@@ -73,7 +73,7 @@ install.packages("patchwork")
 install.packages("purrr")
 ```
 
-## Download dos arquivos necessários
+# Download dos arquivos necessários
 
 Por fim, após a configuração das máquinas, recomendamos que façam o download prévio dos arquivos necessários para o acompanhamento da oficina. Eles estão disponibilizados no site: https://github.com/ConservaSom/2025_SimposioFisicaEcologia_OficinaSomR
 Recomendamos o download de todo o repsitório para suas máquinas, em especial as pastas monitoraSom e sounmeteR.
