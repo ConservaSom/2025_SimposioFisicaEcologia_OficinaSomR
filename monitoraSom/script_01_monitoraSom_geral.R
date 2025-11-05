@@ -25,10 +25,10 @@
 
 ### 5. Instalar o devtools para poder instalar pacotes a partir do GitHub.
 # Esse comando deve ser executado no Rstudio após a instalação do Rtools.
-install.packages("devtools")
+# install.packages("devtools")
 
 ### 6. Carregar o devtools para o ambiente de trabalho.
-library(devtools)
+# library(devtools)
 
 ### 7. Instalar o monitoraSom
 # - O monitoraSom depende de outros pacotes do R para funcionar adequadamente.
@@ -37,7 +37,7 @@ library(devtools)
 #   todas as dependências respondendo '1' ("All").
 # - Atenção 2: Pode ser solictada também a resposta sobre instalação de pacotes
 #   de precisam de compilação. Nesse caso, responda 'Yes'.
-install_github("ConservaSom/monitoraSom", dependencies = TRUE)
+# install_github("ConservaSom/monitoraSom", dependencies = TRUE)
 
 ### 8. Carregar o monitoraSom no ambiente de trabalho do R para testar a instalação.
 library(monitoraSom)
@@ -65,7 +65,7 @@ setwd(project_path)
 getwd()
 
 ### 11. Povoando o diretório de trabalho com os arquivos de exemplo do monitoraSom.
-set_workspace(project_path = "./", example_data = TRUE)
+# set_workspace(project_path = "./", example_data = TRUE)
 
 list.files("./soundscapes/", full.names = TRUE)
 list.files("./recordings/", full.names = TRUE)
@@ -74,13 +74,13 @@ list.files("./roi_tables/", full.names = TRUE)
 ### 12. (Opcional) Limpeza de arquivos pre-carregados
 # Vamos apagar os arquivos de exemplo para continuar o tutorial como um novo
 # projeto. Pule esta etapa se quiser obter os mesmos resultados do tutorial.
-file.remove(list.files("./detections/", full.names = TRUE))
-file.remove(list.files("./match_grid_metadata/", full.names = TRUE))
-file.remove(list.files("./match_scores/", full.names = TRUE))
-file.remove(list.files("./soundscapes_metadata/", full.names = TRUE))
-file.remove(list.files("./templates/", full.names = TRUE))
-file.remove(list.files("./templates_metadata/", full.names = TRUE))
-file.remove(list.files("./validation_outputs/", full.names = TRUE))
+# file.remove(list.files("./detections/", full.names = TRUE))
+# file.remove(list.files("./match_grid_metadata/", full.names = TRUE))
+# file.remove(list.files("./match_scores/", full.names = TRUE))
+# file.remove(list.files("./soundscapes_metadata/", full.names = TRUE))
+# file.remove(list.files("./templates/", full.names = TRUE))
+# file.remove(list.files("./templates_metadata/", full.names = TRUE))
+# file.remove(list.files("./validation_outputs/", full.names = TRUE))
 
 ### Checkpoint 02
 # Você povoou o diretório de trabalho com os arquivos de exemplo do monitoraSom
@@ -111,7 +111,6 @@ launch_segmentation_app(
 )
 
 ### 15. Preparando os templates.
-
 df_rois <- fetch_rois(rois_path = "./roi_tables/")
 unique(df_rois$soundscape_file) # Verificando os nomes das gravações
 
@@ -122,7 +121,9 @@ df_templates <- df_rois %>%
 glimpse(df_templates)
 
 ### 16. Exportando os cortes de audio dos templates.
-export_roi_cuts(df_rois = df_templates, roi_cuts_path = "./templates/")
+export_roi_cuts(
+    df_rois = df_templates, roi_cuts_path = "./templates/", overwrite = FALSE
+)
 list.files(path = "./templates/", pattern = "Bcu", full.names = TRUE)
 
 ### Checkpoint 03
@@ -134,9 +135,8 @@ list.files(path = "./templates/", pattern = "Bcu", full.names = TRUE)
 template_matching(
     soundscapes_path = "./soundscapes/", # local de origem das soundscapes
     templates_path = "./templates/", # local de origem dos templates
-    output_file = "./detections/df_detecs.csv", # resultado (detecções)
     ncores = 4
-)
+) %>% glimpse()
 
 ### 18. Processando os metadados das soundscapes (processo detalhado).
 df_soundscapes <- fetch_soundscape_metadata(
@@ -172,7 +172,6 @@ cowplot::plot_grid(
     ncol = 1
 )
 
-
 ### 19. Processando os metadados dos templates (processo detalhado).
 df_templates <- fetch_template_metadata(
     templates_path = "./templates/", recursive = TRUE
@@ -196,7 +195,7 @@ templates_plots <- purrr::map(df_templates$template_path, ~ {
 })
 cowplot::plot_grid(
     templates_plots[[1]], templates_plots[[2]],
-    ncol = 2, rel_widths = c(1, 0.35)
+    ncol = 2, rel_widths = c(0.3, 1)
 )
 
 
@@ -234,24 +233,24 @@ glimpse(df_scores$score_vec[[20]])
 
 ### 23. Visualizando os scores brutos.
 # Visualização bruta
-plot_scores(df_scores_i = df_scores[7, ])
+plot_scores(df_scores_i = df_scores[8, ])
 
 # Scores ajustados para melhor visualização.
 plot_scores(
-    df_scores_i = df_scores[7, ], ovlp = 90, wl = 1024,
+    df_scores_i = df_scores[8, ], ovlp = 90, wl = 1024,
     dyn_range = c(-96, -48), color_scale = "inferno"
 )
 
 # Mais um pouco de zoom agora para ver o pico correspondente a uma detecção mais
 # promissora.
 plot_scores(
-    df_scores_i = df_scores[7, ], ovlp = 70, wl = 1024,
+    df_scores_i = df_scores[8, ], ovlp = 70, wl = 1024,
     dyn_range = c(-96, -48), color_scale = "inferno", zoom_time = c(5, 10)
 )
 
 # Explorando os filtros
 plot_scores(
-    df_scores_i = df_scores[7, ], ovlp = 70, wl = 1024,
+    df_scores_i = df_scores[8, ], ovlp = 70, wl = 1024,
     dyn_range = c(-96, -48), color_scale = "inferno",
     buffer_size = "template", top_n = 6
 )
@@ -259,13 +258,13 @@ plot_scores(
 # Agora vamos desligar o buffer e reter somente as detecções com scores acima de
 # 0.1.
 plot_scores(
-    df_scores_i = df_scores[7, ], ovlp = 70, wl = 1024,
+    df_scores_i = df_scores[8, ], ovlp = 70, wl = 1024,
     dyn_range = c(-96, -48), color_scale = "inferno",
     buffer_size = 0, min_score = 0.1
 )
 
 plot_scores(
-    df_scores_i = df_scores[11, ], ovlp = 70, wl = 1024,
+    df_scores_i = df_scores[10, ], ovlp = 70, wl = 1024,
     dyn_range = c(-96, -48), color_scale = "inferno",
     buffer_size = "template", min_score = 0.1
 )
@@ -355,25 +354,25 @@ template2_score <- ls_val_apriori[[2]]$score_cut
 template1_name <- ls_val_apriori[[1]]$diagnostics$template_name[1]
 template2_name <- ls_val_apriori[[2]]$diagnostics$template_name[1]
 
-detecs_final <- df_detecs %>%
+df_detecs_final_1 <- df_detecs %>%
     filter(
-        (template_name == template1_name & peak_score >= template1_score) |
-            (template_name == template2_name & peak_score >= template2_score)
-    )
-glimpse(detecs_final)
-write.csv(
-    detecs_final, "./detections/df_detecs_soundmeter.csv"
-)
+        template_name == template1_name & peak_score >= template1_score
+    ) %>%
+    glimpse()
+df_detecs_final_2 <- df_detecs %>%
+    filter(
+        template_name == template2_name & peak_score >= template2_score
+    ) %>%
+    glimpse()
 
-
-detection_plots1 <- detecs_subC %>%
+detection_plots1 <- df_detecs_final_1 %>%
     split(., seq(nrow(.))) %>%
     purrr::map(., ~ {
         wav <- tuneR::readWave(
             filename = .x$soundscape_path, from = .x$detection_start, to = .x$detection_end, units = "seconds"
         )
         res <- fast_spectro(
-            rec = wav, f = wav@samp.rate, wl = 1024, ovlp = 70,
+            rec = wav, f = wav@samp.rate, wl = 512, ovlp = 90,
             dyn_range = c(-102, -42), color_scale = "greyscale 1",
             freq_guide_interval = 0, time_guide_interval = 0,
             zoom_freq = c(
@@ -391,10 +390,13 @@ cowplot::plot_grid(
     detection_plots1[[1]], detection_plots1[[2]],
     detection_plots1[[3]], detection_plots1[[4]],
     detection_plots1[[5]], detection_plots1[[6]],
-    ncol = 3
+    detection_plots1[[7]], detection_plots1[[6]],
+    detection_plots1[[7]], detection_plots1[[8]],
+    detection_plots1[[9]], detection_plots1[[11]],
+    ncol = 4
 )
 
-detection_plots2 <- detecs_csong %>%
+detection_plots2 <- df_detecs_final_2 %>%
     split(., seq(nrow(.))) %>%
     purrr::map(., ~ {
         wav <- tuneR::readWave(
@@ -421,14 +423,12 @@ cowplot::plot_grid(
     detection_plots2[[5]], detection_plots2[[6]],
     detection_plots2[[7]], detection_plots2[[8]],
     detection_plots2[[9]], detection_plots2[[10]],
-    detection_plots2[[11]], detection_plots2[[12]],
-    detection_plots2[[13]],
     ncol = 5
 )
 
 # 30. Transformando as detec<U+00E7><U+00F5>es finais em tabelas de ROIs
 dir.create("./final_detecs")
-df_final <- rbind(detecs_csong, detecs_subC) %>% glimpse()
+df_final <- rbind(df_detecs_final_1, df_detecs_final_2) %>% glimpse()
 df_rois_final <- detecs_to_rois(
     df_detecs = df_final, username = "User",
     output_path = "./final_detecs/"
