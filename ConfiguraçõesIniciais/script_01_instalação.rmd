@@ -1,0 +1,76 @@
+---
+title: "Intruções de instação e configuração dos computadores para as oficinas"
+subtitle: "I Simpósio de Física aplicada à Ecologia e Conservação"
+author: "Gariel Rosa (), Cássio Rachid Simões (cassiorachid@conservasom.com.br)"
+date: "`r Sys.Date()`"
+output: 
+  rmdformats::downcute: 
+    number_sections: true
+    self_contained: true
+    thumbnails: true
+    lightbox: true
+    gallery: false
+    highlight: tango
+---
+
+# Introdução
+
+Seja bem-vindo(a) ao tutorial do _monitoraSom_ e _soundmeteR_! Nessa primeira etapa, fazer os downloads e instalações necessárias para o uso do monitoraSom.
+
+# Instalação de programas no computador
+
+- **Baixe e instale primeiro o R conforme instruções no link a seguir para seu sistema operacional**: https://cran-r.c3sl.ufpr.br/ 
+- **NOTA**: Caso já tenha o R instalado, recomendamos que o atualize para a última versão estável disponível no site acima (Neste momento é a 4.5.1). 
+- **Apenas usuários do sistema operacional Windows**: É necessário a instalação do _Rtools_ (na versão equivalente à sua versão do R, atualmente a 4.5), disponível no link a seguir: https://cran-r.c3sl.ufpr.br/ 
+- **Recomendamos a instalação do RStudio** para uma interface mais amigável, você pode baixá-lo usando o link a seguir: https://posit.co/download/rstudio-desktop/
+- **Atenção**: se houver mais de uma versão do R instalada, certifique-se qual está sendo usada ao abrir o Rstudio.
+
+# Instalação dos pacotes do R
+
+## Instalação do _devtools_
+
+Atualmente, os pacotes _monitoraSom_ e _soundmeteR_ estão disponíveis apenas em suas páginas oficiais no GitHub (https://github.com/ConservaSom/monitoraSom e https://github.com/ConservaSom/soundmeteR) e para realizar as instalações é necessário ter o pacote _devtools_ em seu ambiente R. Para tanto, você vai precisar iniciar o seu _Rstudio_, iniciar um novo script, copiar e colar o código abaixo e executar:
+```{r eval=FALSE}
+install.packages("devtools")
+```
+
+**NOTA**: A partir deste ponto todos os códigos de R deverão ser exceutados desta mesma maneira!
+
+## Instalação do _monitoraSom_ e _soundmeteR_
+
+Os pacotes _monitoraSom_ e _soundmeteR_ dependem de outros pacotes do R para funcionar adequadamente. Para tanto, é necessário ter atenção nos seguintes itens durante a instalação deles:
+- Atenção 1: A instalação poderá solicitar a confirmação de instalação das dependências. Recomendamos que seja feita a instalação ou atualização de todas as dependências respondendo '1' ("All").
+- Atenção 2: Pode ser solicitada também a resposta sobre instalação de pacotes de precisam de compilação. Nesse caso, responda 'Yes'.
+- Resolvendo possiveis problemas: Verifique o andamento da instalação no console do _Rstudio_. É possivel que ocorram falhas na atualização de pacotes que já foram instalados antes, a maior parte delas não resulta em problemas para nossos pacotes. Observe se ao final do processo, apesar dos warnings, é dada a mensagem "* DONE (monitoraSom)". Caso positivo, a instalação foi concluída e podemos avançar para o próximo passo. Caso negativo, leia a mensagem de erro, identifique os pacotes que estão causando o problema e tente remove-los para fazer a instalação novamente.
+- Para casos em que a instalação foi interrompida, é possível que seja necessário ir até o diretório onde arquivos dos pacotes instalados ficam armazenados usando o navegador de arquivos (geralmente em "C:/ProgramFiles/R/R-4.5.1/library/", para usuários Windows) e removê-los manualmente juntamente com um diretório de nome iniciado em "00-LOCK". Cerifique-se que o _Rstudio_ está fechado antes de fazer isso. Abra novamente o _Rstudio_ e tente a instalação novamente.
+
+O comando para realizar a instalação do _monitoraSom_ e do _soundmeteR_ é:
+```{r eval=FALSE}
+# instalação do monitoraSom
+install_github("ConservaSom/monitoraSom", dependencies = TRUE)
+
+# instalação do soundmeteR
+devtools::install_github("ConservaSom/soundmeteR", dependencies = TRUE)
+```
+
+Além das mensagens no console do Rstudio, você pode verificar se a instalação foi bem sucedida carregando os pacotes. O carregamento pode apresentar alguns Warnings, contudo deverá acontecer sem erros. Caso contrário, tente realizar a instalação novamente seguindo as intruções e se enfrentar algum problema, entre em contato conosco.
+```{r eval=FALSE}
+library(monitoraSom)
+library(soundmeteR)
+```
+
+## Pacotes adicionais necessários para a oficina
+
+Alguns pacotes adicionais serão necessários para o fluxo de análises que utilizaremos na disciplina, sendo assim, recomendamos que já realizem a instalação prévia deles executando os códigos abaixo.
+```{r eval=FALSE}
+install.packages("seewave")
+install.packages("tuneR")
+install.packages("dplyr")
+install.packages("ggplot2")
+install.packages("cowplot")
+install.packages("patchwork")
+install.packages("purrr")
+```
+
+
+
