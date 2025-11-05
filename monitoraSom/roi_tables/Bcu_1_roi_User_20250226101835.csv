@@ -9,3 +9,4 @@ soundscape_path,soundscape_file,roi_user,roi_input_timestamp,roi_label,roi_start
 ./recordings/Bcu_1.wav,Bcu_1.wav,User,2025-02-26 11:18:21,Basileuterus culicivorus,14.74604355706,15.221826372223,3.6983565628201,5.0987955663179,bird - song,certain,complete,Substructure A,1024,70,24000,1
 ./recordings/Bcu_1.wav,Bcu_1.wav,User,2025-02-26 11:18:28,Basileuterus culicivorus,26.570461948884,27.02932804173,3.7634932606572,5.1150797407771,bird - song,certain,complete,Substructure A,1024,70,24000,1
 ./recordings/Bcu_1.wav,Bcu_1.wav,User,2025-11-04 10:17:04,Basileuterus culicivorus,14.312071540832,16.219033453737,2.9114470199661,9.3149939000803,bird - song,certain,complete,Complete Song,1024,50,24000,1
+./recordings/Bcu_1.wav,Bcu_1.wav,User,2025-11-05 10:22:43,Basileuterus culicivorus,26.071120842872,28.059887625031,2.7326970497785,9.6925514067946,bird - song,certain,complete,Complete Song,1024,50,24000,1

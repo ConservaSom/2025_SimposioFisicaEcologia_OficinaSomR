@@ -1,5 +1,4 @@
 
-install.packages("dplyr")
 ### 1. Carregar o monitoraSom e outros pacotes necessários.
 library(monitoraSom)
 library(dplyr)
@@ -48,7 +47,7 @@ glimpse(df_templates)
 # 7. Exportando os cortes de audio dos templates.
 export_roi_cuts(df_rois = df_templates, roi_cuts_path = "./templates/")
 
-# 8. Obtendo as detec<U+00E7><U+00F5>es (processo simplificado)
+# 8. Obtendo as detecções (processo simplificado)
 df_detecs <- template_matching(
     soundscapes_path = "./soundscapes/", # local de origem das soundscapes
     templates_path = "./templates/", # local de origem dos templates
