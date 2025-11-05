@@ -75,12 +75,12 @@ install.packages("purrr")
 
 # Download dos arquivos necessários
 
-Por fim, após a configuração das máquinas, recomendamos que façam o download prévio dos arquivos necessários para o acompanhamento da oficina. Eles estão disponibilizados no link: https://github.com/ConservaSom/2025_SimposioFisicaEcologia_OficinaSomR/archive/refs/tags/MaterialApoio.zip
+Por fim, após a configuração das máquinas, recomendamos que façam o download prévio dos arquivos necessários para o acompanhamento da oficina. Eles estão disponibilizados no link:
+- https://github.com/ConservaSom/2025_SimposioFisicaEcologia_OficinaSomR/archive/refs/tags/MaterialApoio.zip
 
-Também é necesssário o download dos roteiros que estão disponíveis nos links abaixo:
+Também é necessário o download dos roteiros que estão disponíveis nos links abaixo:
 
-- *monitoraSom* rmd:
-- *monitoraSom* pdf: 
+- *monitoraSom* pdf: https://github.com/ConservaSom/2025_SimposioFisicaEcologia_OficinaSomR/blob/main/monitoraSom/nb_01_monitoraSom_geral.pdf
 
 - *soundmeteR* rmd: https://github.com/ConservaSom/2025_SimposioFisicaEcologia_OficinaSomR/blob/main/soundmeteR/soundmeteR_roteiro_Oficina-SimposioFisicaEcologia2025.rmd
 - *soundmeteR* pdf: https://github.com/ConservaSom/2025_SimposioFisicaEcologia_OficinaSomR/blob/main/soundmeteR/soundmeteR_roteiro_Oficina-SimposioFisicaEcologia2025.pdf
