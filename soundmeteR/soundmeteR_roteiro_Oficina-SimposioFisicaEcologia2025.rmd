@@ -329,3 +329,8 @@ cowplot::plot_grid(
 )
 ```
 
+# Leitura recomendada
+
+O fluxo de trabalho apresentado nesta oficina tem muitas aplicações interessantes, como avaliar perfil de ruído de fundo e calcular modelos de decaimento de cantos de espécies. O fluxo de trabalho apresentado nesta oficina é uma parte do que foi recentemente aplicado em um artigo para estimar abundancia de duas espécies de aves a utilizando as distâncias estimadas de seus cantos em gravações monitoramento acústico passivo. Aos interessados, recomenda-se a leitura:
+
+- de Araújo *et al*. 2025. **Towards large-scale abundance assessments through automated birdsong detection and distance estimation**. *IBIS*. URL: https://doi.org/10.1111/ibi.13431
