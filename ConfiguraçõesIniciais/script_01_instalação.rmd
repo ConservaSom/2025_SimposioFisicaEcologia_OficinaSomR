@@ -39,6 +39,7 @@ install.packages("devtools")
 ## Instalação do _monitoraSom_ e _soundmeteR_
 
 Os pacotes _monitoraSom_ e _soundmeteR_ dependem de outros pacotes do R para funcionar adequadamente. Para tanto, é necessário ter atenção nos seguintes itens durante a instalação deles:
+
 - Atenção 1: A instalação poderá solicitar a confirmação de instalação das dependências. Recomendamos que seja feita a instalação ou atualização de todas as dependências respondendo '1' ("All").
 - Atenção 2: Pode ser solicitada também a resposta sobre instalação de pacotes de precisam de compilação. Nesse caso, responda 'Yes'.
 - Resolvendo possiveis problemas: Verifique o andamento da instalação no console do _Rstudio_. É possivel que ocorram falhas na atualização de pacotes que já foram instalados antes, a maior parte delas não resulta em problemas para nossos pacotes. Observe se ao final do processo, apesar dos warnings, é dada a mensagem "* DONE (monitoraSom)". Caso positivo, a instalação foi concluída e podemos avançar para o próximo passo. Caso negativo, leia a mensagem de erro, identifique os pacotes que estão causando o problema e tente remove-los para fazer a instalação novamente.
