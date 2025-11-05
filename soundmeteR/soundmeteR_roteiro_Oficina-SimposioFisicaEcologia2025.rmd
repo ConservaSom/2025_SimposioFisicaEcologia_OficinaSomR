@@ -211,18 +211,17 @@ Nesse momento utilizaremos o resultado obtido ao final da prática realizada com
 Precisamos abrir o app de validação do _monitoraSom_ para selecionar as detecções de cantos que não tenham sobreposição com ruído de fundo. Esta ação é necessária pois o ruído pode interferir nas medidas de pressão sonora, gerando valores incoerentes com a realidade.
 ```{r eval = FALSE}
 launch_validation_app(
-    project_path = ".", validation_user = "User",
-    templates_path = "./templates/", soundscapes_path = "./soundscapes/",
-    input_path = "./detections/df_detecs_soundmeter.csv",
-    output_path = "./detections/df_detecs_soundmeter.csv",
-    dyn_range_templ = c(-36, 0),
-    dyn_range_detec = c(-96, -36),
-    wl = 512,
-    ovlp = 70,
-    time_guide_interval = 0,
-    freq_guide_interval = 0,
-    overwrite = TRUE,
-
+  project_path = ".", validation_user = "User",
+  templates_path = "./templates/", soundscapes_path = "./soundscapes/",
+  input_path = "./detections/df_detecs_soundmeter.csv",
+  output_path = "./detections/df_detecs_soundmeter.csv",
+  dyn_range_templ = c(-36, 0),
+  dyn_range_detec = c(-96, -36),
+  wl = 512,
+  ovlp = 70,
+  time_guide_interval = 0,
+  freq_guide_interval = 0,
+  overwrite = TRUE,
 )
 ```
 
@@ -235,7 +234,6 @@ detections <- read.csv(
     validation == "TP" # filtro dos arquivos úteis
   ) %>%
   print()
-
 ```
 
 Calculando as medidas de pressão sonora de cada detecção com a função `soundmeter`. 
@@ -248,7 +246,7 @@ spl <- soundmeter(
   CalibValue = calib_value, # fator de calibração obtido anteriormente
   tw = "fast", # janela de ponderação do tempo
   fw = "A", # curva de ponderação de frequência
-  bandpass = c(2500,9000) # filtro de passagem de banda
+  bandpass = c(2500, 9000) # filtro de passagem de banda
 ) %>%
   print()
 ```
@@ -267,39 +265,60 @@ Gerando uma prancha para visualizar os cantos detectados e seus valores de press
 ```{r eval = FALSE}
 # gerando o gráficos para visualizar os resultados
 detection_plots1 <- detections %>%
-    split(., seq(nrow(.))) %>%
-    purrr::map(., ~ {
-        wav <- tuneR::readWave(
-          filename = .x$soundscape_path,
-          from = .x$detection_start,
-          to = .x$detection_end,
-          units = "seconds"
-        )
-        res <- fast_spectro(
-          rec = wav, f = wav@samp.rate, wl = 512, ovlp = 70,
-          dyn_range = c(-102, -42), color_scale = "greyscale 1",
-          freq_guide_interval = 0, time_guide_interval = 0,
-          zoom_freq = c(
-            .x$template_min_freq,
-            .x$template_max_freq
-          )
-        ) +
-          theme_bw() +
-          theme(legend.position = "none") +
-          ggtitle( paste0(.x$LAmax, " dB"))
-        return(res)
-    }, .progress = TRUE)
+  split(., seq(nrow(.))) %>%
+  purrr::map(., ~ {
+    wav <- tuneR::readWave(
+      filename = .x$soundscape_path,
+      from = .x$detection_start,
+      to = .x$detection_end,
+      units = "seconds"
+    )
+    res <- fast_spectro(
+      rec = wav, f = wav@samp.rate, wl = 512, ovlp = 70,
+      dyn_range = c(-102, -42), color_scale = "greyscale 1",
+      freq_guide_interval = 0, time_guide_interval = 0,
+      zoom_freq = c(
+        .x$template_min_freq,
+        .x$template_max_freq
+      )
+    ) +
+      theme_bw() +
+      theme(legend.position = "none") +
+      ggtitle(paste0(
+        "ID ", .x$detection_id,
+        " | ",
+        .x$LAmax, " dB"
+      ))
+    return(res)
+  }, .progress = TRUE)
 
-# Número de gráficos gerados
+#  verificando o número de gráficos gerados
 length(detection_plots1)
 
+# gerando a prancha com cowplot
 cowplot::plot_grid(
-  detection_plots1[[1]], detection_plots1[[2]],
+  # prancha do espectrogramas ID e pressão sonora
+  cowplot::plot_grid(
+    detection_plots1[[1]], detection_plots1[[2]],
     detection_plots1[[3]], detection_plots1[[4]],
     detection_plots1[[5]], detection_plots1[[6]],
     detection_plots1[[6]], detection_plots1[[7]],
     detection_plots1[[8]], detection_plots1[[9]],
-  nrow = 2
+    nrow = 2
+  ),
+  # Barplot
+  ggplot(
+    detections,
+    aes(x = factor(
+      detection_id,
+      level = detection_id
+    ), y = LAmax)
+  ) +
+    geom_bar(stat = "identity") +
+    xlab("ID") +
+    coord_cartesian(ylim=c(65,85)) +
+    theme_bw(),
+  ncol = 2,
+  rel_widths = c(3, 1)
 )
-
 ```
