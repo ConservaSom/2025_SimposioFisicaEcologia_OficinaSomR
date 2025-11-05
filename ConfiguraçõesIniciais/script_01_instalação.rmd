@@ -4,13 +4,10 @@ subtitle: "I Simpósio de Física aplicada à Ecologia e Conservação"
 author: "Gariel Rosa (gabrielrosa@conservasom.com.br), Cássio Rachid Simões (cassiorachid@conservasom.com.br)"
 date: "`r Sys.Date()`"
 output: 
-  rmdformats::downcute: 
-    number_sections: true
-    self_contained: true
-    thumbnails: true
-    lightbox: true
-    gallery: false
-    highlight: tango
+  pdf_document: 
+    toc: yes
+    toc_depth: 5
+    number_sections: yes
 ---
 
 # Introdução
