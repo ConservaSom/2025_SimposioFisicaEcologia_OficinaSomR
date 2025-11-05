@@ -82,6 +82,7 @@ detecs_final <- df_detecs %>%
     )
 glimpse(detecs_final)
 
+
 # 12. Transformando as detecções finais em tabelas de ROIs
 dir.create("./final_detecs")
 df_rois_final <- detecs_to_rois(
