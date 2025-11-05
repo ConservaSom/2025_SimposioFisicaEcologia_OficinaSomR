@@ -187,9 +187,14 @@ soundmeter(
 
 Para aplicar a calibração é necessário extrair o valor a partir de uma gravação com sinal de referência ou das especificações do aparelho e microfone utilizados. Aqui, realizaremos o a partir de uma gravação de um sinal de referência com pressão sonora conhecida.
 
+**NOTA**: A partir deste ponto o script só irá funcionar se ele estiver salvo dentro da pasta **soundmeteR** que existe dentro do arquivo zipado compartilhado (https://github.com/ConservaSom/2025_SimposioFisicaEcologia_OficinaSomR/archive/refs/tags/MaterialApoio.zip). Você deve baixar e descompactar o arquivo em sua máquina, depois salvar o script com esses códigos dentro da pasta **soundmeteR**. A estrutura de pastas deve ser a mesma que foi compartilhada para que os caminhos dos arquivos funcionem sem a necessidade de ajustes.
+
 ```{r eval = FALSE}
 # definindo diretório de trabalho
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+
+# confirmando o diretório de trabalho
+getwd()
 
 # lendo o arquivo de calibração
 calib <- readWave("./calibration/calibration.wav")
