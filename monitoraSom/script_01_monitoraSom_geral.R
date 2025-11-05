@@ -350,22 +350,21 @@ cowplot::plot_grid(
 )
 
 ### 29. Obtendo o conjunto final de detecções.
-res_template1$score_cut
-res_template2$score_cut
+template1_score <- ls_val_apriori[[1]]$score_cut
+template2_score <- ls_val_apriori[[2]]$score_cut
+template1_name <- ls_val_apriori[[1]]$diagnostics$template_name[1]
+template2_name <- ls_val_apriori[[2]]$diagnostics$template_name[1]
 
-detecs_subC <- df_detecs %>%
+detecs_final <- df_detecs %>%
     filter(
-        template_name == res_template1$diagnostics$template_name[1] &
-        peak_score >= res_template1$score_cut
-    ) %>%
-    glimpse()
+        (template_name == template1_name & peak_score >= template1_score) |
+            (template_name == template2_name & peak_score >= template2_score)
+    )
+glimpse(detecs_final)
+write.csv(
+    detecs_final, "./detections/df_detecs_soundmeter.csv"
+)
 
-detecs_csong <- df_detecs %>%
-    filter(
-        template_name == res_template2$diagnostics$template_name[1] &
-        peak_score >= res_template2$score_cut
-    ) %>%
-    glimpse()
 
 detection_plots1 <- detecs_subC %>%
     split(., seq(nrow(.))) %>%

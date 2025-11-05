@@ -501,7 +501,7 @@ Essas métricas geralmente apresentam uma relação de toma-lá-dá-cá: aumenta
 A função `diagnostic_validations()` produz uma lista com os diagnósticos de performance para cada template.
 ```{r}
 ls_val_apriori <- diagnostic_validations(
-    df_validated = df_validated, pos_prob = 0.95, val_a_priori = TRUE
+    df_validated = df_validated, pos_prob = 0.90, val_a_priori = TRUE
 )
 # Separando os resultados para cada template
 res_template1 <- ls_val_apriori[[1]]
@@ -555,7 +555,7 @@ detection_plots1 <- detecs1 %>%
             filename = .x$soundscape_path, from = .x$detection_start, to = .x$detection_end, units = "seconds"
         )
         res <- fast_spectro(
-            rec = wav, f = wav@samp.rate, wl = 1024, ovlp = 70,
+            rec = wav, f = wav@samp.rate, wl = 512, ovlp = 70,
             dyn_range = c(-102, -42), color_scale = "greyscale 1",
             freq_guide_interval = 0, time_guide_interval = 0,
             zoom_freq = c(
@@ -572,9 +572,8 @@ length(detection_plots1)
 
 cowplot::plot_grid(
     detection_plots1[[1]], detection_plots1[[2]],
-    detection_plots1[[3]],
-    # detection_plots1[[4]],
-    # detection_plots1[[5]], detection_plots1[[6]],
+    detection_plots1[[3]], detection_plots1[[4]],
+    detection_plots1[[5]], detection_plots1[[6]],
     ncol = 3
 )
 ```
@@ -589,7 +588,7 @@ detection_plots2 <- detecs2 %>%
             filename = .x$soundscape_path, from = .x$detection_start, to = .x$detection_end, units = "seconds"
         )
         res <- fast_spectro(
-            rec = wav, f = wav@samp.rate, wl = 1024, ovlp = 70,
+            rec = wav, f = wav@samp.rate, wl = 512, ovlp = 70,
             dyn_range = c(-102, -42), color_scale = "greyscale 1",
             freq_guide_interval = 0, time_guide_interval = 0,
             zoom_freq = c(
@@ -610,8 +609,8 @@ cowplot::plot_grid(
     detection_plots2[[5]], detection_plots2[[6]],
     detection_plots2[[7]], detection_plots2[[8]],
     detection_plots2[[9]], detection_plots2[[10]],
-    # detection_plots2[[11]], detection_plots2[[12]],
-    # detection_plots2[[13]],
+    detection_plots2[[11]], detection_plots2[[12]],
+    detection_plots2[[13]],
     ncol = 5
 )
 ```
