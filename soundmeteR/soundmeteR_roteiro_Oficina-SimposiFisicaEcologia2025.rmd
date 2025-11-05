@@ -94,61 +94,173 @@ matrix(
   )
 ```
 
-## Exemplos de uso
+# Exemplos de uso
 
+## Carregando os pacotes e o arquivos de exemplo
+
+Carregando os pacotoes necessários:
 ```{r eval = FALSE}
-library(soundmeteR) # carregar o pacote soundmeteR
-library(seewave) # caregando seewave para visualização do sonogramas
-library(tuneR) # carregando tuneR para manipulação de arquivos Wave
-
-data(tham) #aquivo de exemplo do pacote soundmeteR (Thamnophilus stictocephalus)
-
-spectro(
-  tham,
-  flim = c(0, 10),
-  scale = FALSE
-)
-
-setWavPlayer("audacious")
-
-listen(tham)
-
+# carregar o pacote soundmeteR
+library(soundmeteR)
+# caregando seewave para visualização do sonogramas
+library(seewave)
+# carregando tuneR para manipulação de arquivos Wave
+library(tuneR)
 ```
 
-### Gravações não calibradas
-- leqbands em dBFS
+Carregando o exemplo interno do pacote e visualizando o espectrograma. O exemplo é um canto de um _Thamnophilus stictocephalus_ em uma gravação calibrada.
+```{r eval = FALSE}
+# Carregando aquivo de exemplo do pacote soundmeteR (Thamnophilus stictocephalus)
+data(tham)
 
-- soundmeter em dBFS (ruído de fundo)
+# Corte do trecho do arquivo em que o canto da espécie aparece
+som <- cutw(
+  tham,
+  from = 3.5, # zoom no tempo para o momento que o canto da espécies aparece
+  to = 7.2,
+  output = "Wave"
+)
 
-### Gravações com calibração
-- Calibração com arquivos separado
-  - leqbands (pensar em separar a função de calibração)
-  - soundmeter
-
-- Calibração com sinal de referência no mesmo arquivo
-  - leqbands_cal
-  - soundmeter
-
-### Arquivos Wave não carregados no ambiente R
-
-- read.wave
-- leqbands
-- soundmeter
-
-# Aplicação prática
-
-- Artigo do _Basileuterus culicivorus_
-- Contextualizar
-   - PAM
-   - Calibração
-   - Desenho experimental
-   - Medida de interesse
+# verificando o arquivo
+som
 
 
+# Espectrograma do arquivo de exemplo
+spectro(
+  som,
+  flim = c(0, 8), # zoom na frequência
+  scale = FALSE
+)
+```
 
-## Calibração
+Escutando o arquivo. Algumas máquinas e sistemas operacionais podem necessitar que você defina o reprodutor de áudio com a função `setWavPlayer()` do pacote _tuneR_.
+```{r eval = FALSE}
+# Caso queira escutar o arquivo
+listen(
+  som
+)
+```
 
-## Extração da medida de interesse
+## Aplicações do _soundmeteR_ em gravações não calibradas
 
-## Modelo de decaimento
+A função `leqbands()` calcula o nível sonoro equivalente (Leq) em bandas de oitavas ou terças de oitavas para arquivos Wave. Quando utilizado em gravações não calibradas, a função retorna os valores em dBFS (decibéis em full scale -  relativo ao ponto de distorção em 0 dB).
+```{r eval = FALSE}
+# Leq por oitavas
+leqbands(
+  som,
+  band = "octaves", # bandas de frequência utilizadas
+  weighting = "A" # curva de ponderação de frequências
+)
 
+# Leq por terças de oitavas
+leqbands(
+  som,
+  band = "thirds", # bandas de frequência utilizadas
+  weighting = "A" # curva de ponderação de frequências
+)
+```
+
+A função `soundmeter()` calcula diversas medidas de níveis sonoros similares às medidas obtidas por um decibelímetro. Quando utilizado em gravações não calibradas, a função retorna os valores em dBFS (decibéis em full scale -  relativo ao ponto de distorção em 0 dB).
+```{r eval = FALSE}
+# soundmeter por oitavas
+soundmeter(
+  som,
+  tw = "fast", # ponderação temporal "fast" ou "slow"
+  fw = "A", # curva de ponderação de frequências
+  bands =  "octaves" # bandas de frequência utilizadas
+)
+
+# soundmeter por terças de oitavas
+soundmeter(
+  som,
+  tw = "fast", # ponderação temporal "fast" ou "slow"
+  fw = "A", # curva de ponderação de frequências
+  bands =  "thirds" # bandas de frequência utilizadas
+)
+```
+
+## Aplicação do _soundmeteR_ em gravações com calibração
+
+Para aplicar a calibração é necessário extrair o valor a partir de uma gravação com sinal de referência ou das especificações do aparelho e microfone utilizados. Aqui, realizaremos o a partir de uma gravação de um sinal de referência com pressão sonora conhecida.
+
+```{r eval = FALSE}
+# definindo diretório de trabalho
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+
+# lendo o arquivo de calibração
+calib <- readWave("./calibration/calibration.wav")
+
+# plotando no espectro
+spectro(
+  calib,
+  scale = F
+)
+
+# extraindo valor de calibração
+calib_value <- calibration(
+  file = calib,
+  channel = "left",
+  leqsignal = 94
+) %>%
+  print()
+```
+
+Nesse momento utilizaremos o resultado obtido ao final da prática realizada com o pacote _monitoraSom_ no turno anterior para obter valores de pressão sonora para as detecções de _Basileuterus culicivorus_.
+
+Abaixo realizamos a leitura das planilhas com as detecções utilizando uma função do pacote _monitoraSom_.
+```{r eval = FALSE}
+detections <- monitoraSom::fetch_rois(
+  rois_path = "./final_detecs",
+) %>%
+  print()
+```
+
+A partir da planilha com as detecções, vamos extrair medidas de pressão sonora de cada detecção com a função `soundmeter`. 
+```{r eval = FALSE}
+spl <- soundmeter(
+  files = detections$soundscape_path,
+  channel = "left",
+  from = detections$roi_start,
+  to = detections$roi_end,
+  CalibValue = calib_value,
+  tw = "fast",
+  fw = "A",
+  bands = "octaves",
+  bandpass = c(2,10000)
+) %>%
+  print()
+```
+
+Vendo os valores de Lmax junto com os sonogramas
+```{r eval = FALSE}
+# spl <- spl %>%
+#   arrange(LAmax) %>%
+#   print()
+
+layout(matrix(1:20, nrow = 2, byrow = TRUE))
+
+for (i in seq_len(nrow(spl))) {
+  detec <- readWave(
+    detections$soundscape_path[i],
+    from = detections$roi_start[i],
+    to = detections$roi_end[i],
+    units = "seconds"
+  )
+
+  spectro(
+    detec,
+    scale = FALSE
+  )
+
+  legend(
+    "topright",
+    paste(
+      spl$LAmax[i],
+      " dB"
+    ),
+    bg = NULL,
+    cex = 2,
+    box.lwd = NA
+  )
+}
+```

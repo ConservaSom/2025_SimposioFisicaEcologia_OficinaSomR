@@ -5,11 +5,11 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="generator" content="pandoc" />
 
-        <meta name="author" content="Cassio Rachid Simões" />
+        <meta name="author" content="Cássio Rachid Simões (cassiorachid@conservasom.com.br)" />
     
-        <meta name="date" content="2025-10-29" />
+        <meta name="date" content="2025-11-04" />
     
-    <title>soundmeteR: pacote de R para calcular níveis de pressão e intensidade sonora</title>
+    <title>soundmeteR: pacote em R para calcular níveis de pressão e intensidade sonora</title>
 
         <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -1723,6 +1723,230 @@ Prism.languages.python={comment:{pattern:/(^|[^\\])#.*/,lookbehind:!0},"string-i
 Prism.languages.r={comment:/#.*/,string:{pattern:/(['"])(?:\\.|(?!\1)[^\\\r\n])*\1/,greedy:!0},"percent-operator":{pattern:/%[^%\s]*%/,alias:"operator"},boolean:/\b(?:TRUE|FALSE)\b/,ellipsis:/\.\.(?:\.|\d+)/,number:[/\b(?:NaN|Inf)\b/,/(?:\b0x[\dA-Fa-f]+(?:\.\d*)?|\b\d+\.?\d*|\B\.\d+)(?:[EePp][+-]?\d+)?[iL]?/],keyword:/\b(?:if|else|repeat|while|function|for|in|next|break|NULL|NA|NA_integer_|NA_real_|NA_complex_|NA_character_)\b/,operator:/->?>?|<(?:=|<?-)?|[>=!]=?|::?|&&?|\|\|?|[+*\/^$@~]/,punctuation:/[(){}\[\],;]/};
 !function(e){var n=/[*&][^\s[\]{},]+/,t=/!(?:<[\w\-%#;/?:@&=+$,.!~*'()[\]]+>|(?:[a-zA-Z\d-]*!)?[\w\-%#;/?:@&=+$.~*'()]+)?/,r="(?:"+t.source+"(?:[ \t]+"+n.source+")?|"+n.source+"(?:[ \t]+"+t.source+")?)",a="(?:[^\\s\\x00-\\x08\\x0e-\\x1f!\"#%&'*,\\-:>?@[\\]`{|}\\x7f-\\x84\\x86-\\x9f\\ud800-\\udfff\\ufffe\\uffff]|[?:-]<PLAIN>)(?:[ \t]*(?:(?![#:])<PLAIN>|:<PLAIN>))*".replace(/<PLAIN>/g,function(){return"[^\\s\\x00-\\x08\\x0e-\\x1f,[\\]{}\\x7f-\\x84\\x86-\\x9f\\ud800-\\udfff\\ufffe\\uffff]"}),d="\"(?:[^\"\\\\\r\n]|\\\\.)*\"|'(?:[^'\\\\\r\n]|\\\\.)*'";function o(e,n){n=(n||"").replace(/m/g,"")+"m";var t="([:\\-,[{]\\s*(?:\\s<<prop>>[ \t]+)?)(?:<<value>>)(?=[ \t]*(?:$|,|]|}|\\s*#))".replace(/<<prop>>/g,function(){return r}).replace(/<<value>>/g,function(){return e});return RegExp(t,n)}e.languages.yaml={scalar:{pattern:RegExp("([\\-:]\\s*(?:\\s<<prop>>[ \t]+)?[|>])[ \t]*(?:((?:\r?\n|\r)[ \t]+)[^\r\n]+(?:\\2[^\r\n]+)*)".replace(/<<prop>>/g,function(){return r})),lookbehind:!0,alias:"string"},comment:/#.*/,key:{pattern:RegExp("((?:^|[:\\-,[{\r\n?])[ \t]*(?:<<prop>>[ \t]+)?)<<key>>(?=\\s*:\\s)".replace(/<<prop>>/g,function(){return r}).replace(/<<key>>/g,function(){return"(?:"+a+"|"+d+")"})),lookbehind:!0,greedy:!0,alias:"atrule"},directive:{pattern:/(^[ \t]*)%.+/m,lookbehind:!0,alias:"important"},datetime:{pattern:o("\\d{4}-\\d\\d?-\\d\\d?(?:[tT]|[ \t]+)\\d\\d?:\\d{2}:\\d{2}(?:\\.\\d*)?[ \t]*(?:Z|[-+]\\d\\d?(?::\\d{2})?)?|\\d{4}-\\d{2}-\\d{2}|\\d\\d?:\\d{2}(?::\\d{2}(?:\\.\\d*)?)?"),lookbehind:!0,alias:"number"},boolean:{pattern:o("true|false","i"),lookbehind:!0,alias:"important"},null:{pattern:o("null|~","i"),lookbehind:!0,alias:"important"},string:{pattern:o(d),lookbehind:!0,greedy:!0},number:{pattern:o("[+-]?(?:0x[\\da-f]+|0o[0-7]+|(?:\\d+\\.?\\d*|\\.?\\d+)(?:e[+-]?\\d+)?|\\.inf|\\.nan)","i"),lookbehind:!0},tag:t,important:n,punctuation:/---|[:[\]{}\-,|>?]|\.\.\./},e.languages.yml=e.languages.yaml}(Prism);
 </script>
+        <script>$(document).ready(function(){
+    if (typeof $('[data-toggle="tooltip"]').tooltip === 'function') {
+        $('[data-toggle="tooltip"]').tooltip();
+    }
+    if ($('[data-toggle="popover"]').popover === 'function') {
+        $('[data-toggle="popover"]').popover();
+    }
+});
+</script>
+        <style type="text/css">
+.lightable-minimal {
+border-collapse: separate;
+border-spacing: 16px 1px;
+width: 100%;
+margin-bottom: 10px;
+}
+.lightable-minimal td {
+margin-left: 5px;
+margin-right: 5px;
+}
+.lightable-minimal th {
+margin-left: 5px;
+margin-right: 5px;
+}
+.lightable-minimal thead tr:last-child th {
+border-bottom: 2px solid #00000050;
+empty-cells: hide;
+}
+.lightable-minimal tbody tr:first-child td {
+padding-top: 0.5em;
+}
+.lightable-minimal.lightable-hover tbody tr:hover {
+background-color: #f5f5f5;
+}
+.lightable-minimal.lightable-striped tbody tr:nth-child(even) {
+background-color: #f5f5f5;
+}
+.lightable-classic {
+border-top: 0.16em solid #111111;
+border-bottom: 0.16em solid #111111;
+width: 100%;
+margin-bottom: 10px;
+margin: 10px 5px;
+}
+.lightable-classic tfoot tr td {
+border: 0;
+}
+.lightable-classic tfoot tr:first-child td {
+border-top: 0.14em solid #111111;
+}
+.lightable-classic caption {
+color: #222222;
+}
+.lightable-classic td {
+padding-left: 5px;
+padding-right: 5px;
+color: #222222;
+}
+.lightable-classic th {
+padding-left: 5px;
+padding-right: 5px;
+font-weight: normal;
+color: #222222;
+}
+.lightable-classic thead tr:last-child th {
+border-bottom: 0.10em solid #111111;
+}
+.lightable-classic.lightable-hover tbody tr:hover {
+background-color: #F9EEC1;
+}
+.lightable-classic.lightable-striped tbody tr:nth-child(even) {
+background-color: #f5f5f5;
+}
+.lightable-classic-2 {
+border-top: 3px double #111111;
+border-bottom: 3px double #111111;
+width: 100%;
+margin-bottom: 10px;
+}
+.lightable-classic-2 tfoot tr td {
+border: 0;
+}
+.lightable-classic-2 tfoot tr:first-child td {
+border-top: 3px double #111111;
+}
+.lightable-classic-2 caption {
+color: #222222;
+}
+.lightable-classic-2 td {
+padding-left: 5px;
+padding-right: 5px;
+color: #222222;
+}
+.lightable-classic-2 th {
+padding-left: 5px;
+padding-right: 5px;
+font-weight: normal;
+color: #222222;
+}
+.lightable-classic-2 tbody tr:last-child td {
+border-bottom: 3px double #111111;
+}
+.lightable-classic-2 thead tr:last-child th {
+border-bottom: 1px solid #111111;
+}
+.lightable-classic-2.lightable-hover tbody tr:hover {
+background-color: #F9EEC1;
+}
+.lightable-classic-2.lightable-striped tbody tr:nth-child(even) {
+background-color: #f5f5f5;
+}
+.lightable-material {
+min-width: 100%;
+white-space: nowrap;
+table-layout: fixed;
+font-family: Roboto, sans-serif;
+border: 1px solid #EEE;
+border-collapse: collapse;
+margin-bottom: 10px;
+}
+.lightable-material tfoot tr td {
+border: 0;
+}
+.lightable-material tfoot tr:first-child td {
+border-top: 1px solid #EEE;
+}
+.lightable-material th {
+height: 56px;
+padding-left: 16px;
+padding-right: 16px;
+}
+.lightable-material td {
+height: 52px;
+padding-left: 16px;
+padding-right: 16px;
+border-top: 1px solid #eeeeee;
+}
+.lightable-material.lightable-hover tbody tr:hover {
+background-color: #f5f5f5;
+}
+.lightable-material.lightable-striped tbody tr:nth-child(even) {
+background-color: #f5f5f5;
+}
+.lightable-material.lightable-striped tbody td {
+border: 0;
+}
+.lightable-material.lightable-striped thead tr:last-child th {
+border-bottom: 1px solid #ddd;
+}
+.lightable-material-dark {
+min-width: 100%;
+white-space: nowrap;
+table-layout: fixed;
+font-family: Roboto, sans-serif;
+border: 1px solid #FFFFFF12;
+border-collapse: collapse;
+margin-bottom: 10px;
+background-color: #363640;
+}
+.lightable-material-dark tfoot tr td {
+border: 0;
+}
+.lightable-material-dark tfoot tr:first-child td {
+border-top: 1px solid #FFFFFF12;
+}
+.lightable-material-dark th {
+height: 56px;
+padding-left: 16px;
+padding-right: 16px;
+color: #FFFFFF60;
+}
+.lightable-material-dark td {
+height: 52px;
+padding-left: 16px;
+padding-right: 16px;
+color: #FFFFFF;
+border-top: 1px solid #FFFFFF12;
+}
+.lightable-material-dark.lightable-hover tbody tr:hover {
+background-color: #FFFFFF12;
+}
+.lightable-material-dark.lightable-striped tbody tr:nth-child(even) {
+background-color: #FFFFFF12;
+}
+.lightable-material-dark.lightable-striped tbody td {
+border: 0;
+}
+.lightable-material-dark.lightable-striped thead tr:last-child th {
+border-bottom: 1px solid #FFFFFF12;
+}
+.lightable-paper {
+width: 100%;
+margin-bottom: 10px;
+color: #444;
+}
+.lightable-paper tfoot tr td {
+border: 0;
+}
+.lightable-paper tfoot tr:first-child td {
+border-top: 1px solid #00000020;
+}
+.lightable-paper thead tr:last-child th {
+color: #666;
+vertical-align: bottom;
+border-bottom: 1px solid #00000020;
+line-height: 1.15em;
+padding: 10px 5px;
+}
+.lightable-paper td {
+vertical-align: middle;
+border-bottom: 1px solid #00000010;
+line-height: 1.15em;
+padding: 7px 5px;
+}
+.lightable-paper.lightable-hover tbody tr:hover {
+background-color: #F9EEC1;
+}
+.lightable-paper.lightable-striped tbody tr:nth-child(even) {
+background-color: #00000008;
+}
+.lightable-paper.lightable-striped tbody td {
+border: 0;
+}
+</style>
     
     
     
@@ -1817,19 +2041,21 @@ Prism.languages.r={comment:/#.*/,string:{pattern:/(['"])(?:\\.|(?!\1)[^\\\r\n])*
         <div class="Sidebar">
           <div class="SidebarItems" id="toc">
             <ul>
-            <li><a href="#introdução">Introdução</a></li>
-            <li><a href="#instalação">Instalação</a></li>
-            <li><a href="#visão-geral-do-soundmeter">Visão geral do soundmeteR</a>
+            <li><a href="#introdução"><span class="toc-section-number">1</span> Introdução</a></li>
+            <li><a href="#preparação-do-ambiente"><span class="toc-section-number">2</span> Preparação do ambiente</a>
             <ul>
-            <li><a href="#funções-principais">Funções principais</a></li>
-            <li><a href="#exemplos-de-uso">Exemplos de uso</a></li>
-            <li><a href="#calibrações">Calibrações</a></li>
+            <li><a href="#programas-necessários"><span class="toc-section-number">2.1</span> Programas necessários</a></li>
+            <li><a href="#instalação-do-devtools"><span class="toc-section-number">2.2</span> Instalação do <em>devtools</em></a></li>
+            <li><a href="#instalação-do-soundmeter"><span class="toc-section-number">2.3</span> Instalação do <em>soundmeteR</em></a></li>
             </ul></li>
-            <li><a href="#aplicação-prática">Aplicação prática</a>
+            <li><a href="#visão-geral-do-soundmeter"><span class="toc-section-number">3</span> Visão geral do <em>soundmeteR</em></a></li>
+            <li><a href="#exemplos-de-uso"><span class="toc-section-number">4</span> Exemplos de uso</a>
             <ul>
-            <li><a href="#calibração">Calibração</a></li>
-            <li><a href="#section"></a></li>
+            <li><a href="#carregando-os-pacotes-e-o-arquivos-de-exemplo"><span class="toc-section-number">4.1</span> Carregando os pacotes e o arquivos de exemplo</a></li>
+            <li><a href="#aplicações-do-soundmeter-em-gravações-não-calibradas"><span class="toc-section-number">4.2</span> Aplicações do <em>soundmeteR</em> em gravações não calibradas</a></li>
+            <li><a href="#aplicação-do-soundmeter-em-gravações-com-calibração"><span class="toc-section-number">4.3</span> Aplicação do <em>soundmeteR</em> em gravações com calibração</a></li>
             </ul></li>
+            <li><a href="#modelo-de-decaimento"><span class="toc-section-number">5</span> Modelo de decaimento</a></li>
             </ul>
           </div>
           <div data-position="sidebar:post-end" class="InjectedComponents"><div class="dark-theme-toggler"><div class="toggle "><div class="toggle-track"><div class="toggle-track-check"><img src="data:image/png;base64,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" role="presentation" style="pointer-events: none;" width="16" height="16"></div> <div class="toggle-track-x"><img src="data:image/png;base64,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" role="presentation" style="pointer-events: none;" width="16" height="16"></div></div> <div class="toggle-thumb"></div></div> <input type="checkbox" aria-label="Switch between Dark and Default theme" class="toggler-screen-reader-only"></div></div>
@@ -1839,13 +2065,13 @@ Prism.languages.r={comment:/#.*/,string:{pattern:/(['"])(?:\\.|(?!\1)[^\\\r\n])*
    
    
         
-      <h1 class="title"><em>soundmeteR</em>: pacote de R para calcular níveis de pressão e intensidade sonora</h1>
-         <h1 class="subtitle">Roteiro da Oficina do I Simpósio de Física aplicada à Ecologia e Conservação</h1>
+      <h1 class="title"><em>soundmeteR</em>: pacote em R para calcular níveis de pressão e intensidade sonora</h1>
+         <h1 class="subtitle">Roteiro para a oficina do I Simpósio de Física aplicada à Ecologia e Conservação</h1>
    
       <p class="authors">
-           <span class="glyphicon glyphicon-user"></span> Cassio Rachid Simões
+           <span class="glyphicon glyphicon-user"></span> Cássio Rachid Simões (<a href="mailto:cassiorachid@conservasom.com.br" class="email">cassiorachid@conservasom.com.br</a>)
       </p>
-         <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2025-10-29</p>
+         <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2025-11-04</p>
            
 
    
@@ -1853,35 +2079,238 @@ Prism.languages.r={comment:/#.*/,string:{pattern:/(['"])(?:\\.|(?!\1)[^\\\r\n])*
    
 <!-- Don't indent these lines or it will mess pre blocks indentation --> 
 <div class="page-content has-page-title">
-<div id="introdução" class="section level1">
-<h1>Introdução</h1>
+<style>
+body {
+text-align: justify}
+</style>
+<div id="introdução" class="section level1" number="1">
+<h1 number="1"><span class="header-section-number">1</span> Introdução</h1>
 <p>Este é um roteiro apresentando o fluxo de análises utilizando o pacote <em>soundmeteR</em>. O presente documento foi idealizado para a oficina realizada durante o I Simpósio de Física aplicada à Ecologia e Conservação, realizado em novembro de 2025 em Foz do Iguaçu-PR.</p>
-<p>O pacote <em>soundmeteR</em> é uma ferramenta desenvolvida em R para extração de valores de energia sonora (pressão e intensidade) a partir de gravações em formato Wave (.wav). Ele oferece uma série de funções relacionadas ao fluxo de trabalho para obtenção destas medidas, incluindo a possibilidade de calibração para o cálculo de níveis absolutos de pressão e intensidade.</p>
+<p>Todos os códigos apresentados neste roteiro devem ser executados no R. Você pode usar RStudio, VS Code (com suporte a R) ou outra interface gráfica de sua preferência. Recomenda-se especialmente o uso do RStudio, por ser uma interface intuitiva e amplamente adotada pela comunidade R.</p>
 </div>
-<div id="instalação" class="section level1">
-<h1>Instalação</h1>
+<div id="preparação-do-ambiente" class="section level1" number="2">
+<h1 number="2"><span class="header-section-number">2</span> Preparação do ambiente</h1>
+<p>O fluxo de trabalho apresentado nesse documento foi pensado de maneira que os participantes possam tanto acompanhar as etapas de análise utilizando seus próprios computadores durante a oficina quanto executar de forma independente após participarem da oficina. Para isso, é necessário que os participantes tenham o <em>R</em>, versão do <em>Rtools</em> equivalente e o <em>Rstudio</em> instalados e atualizados em suas máquinas.</p>
+<p>Atualmente, o pacote <em>soundmeteR</em> está disponível apenas no repositório oficial do GitHub (<a href="https://github.com/ConservaSom/soundmeteR" class="uri">https://github.com/ConservaSom/soundmeteR</a>) e para instalá-lo será necessário também a instalação do pacote <em>devtools</em>, que é utilizado para instalar pacotes diretamente do GitHub.</p>
+<p>Nos tópicos a seguir estão descritas as etapas para a preparação do ambiente de análise.</p>
+<div id="programas-necessários" class="section level2" number="2.1">
+<h2 number="2.1"><span class="header-section-number">2.1</span> Programas necessários</h2>
+<p>Os programas necessários para a instalação e utilização do <em>soundmeteR</em> são:</p>
+<ul>
+<li><em>R</em>: <a href="https://cran.r-project.org/" class="uri">https://cran.r-project.org/</a></li>
+<li><em>Rstudio</em>: <a href="https://posit.co/download/rstudio-desktop/" class="uri">https://posit.co/download/rstudio-desktop/</a></li>
+<li><em>Rtools</em> (apenas para usuários Windows): <a href="https://cran.r-project.org/bin/windows/Rtools/" class="uri">https://cran.r-project.org/bin/windows/Rtools/</a></li>
+</ul>
 </div>
-<div id="visão-geral-do-soundmeter" class="section level1">
-<h1>Visão geral do soundmeteR</h1>
-<div id="funções-principais" class="section level2">
-<h2>Funções principais</h2>
+<div id="instalação-do-devtools" class="section level2" number="2.2">
+<h2 number="2.2"><span class="header-section-number">2.2</span> Instalação do <em>devtools</em></h2>
+<p>O <em>devtools</em> é um pacote essencial para usuários avançados de R, pois permite a instalação de pacotes que ainda não foram publicados no CRAN (o repositório oficial do R). Para instalá-lo, basta executar o comando comando abaixo dentro do R ou Rstudio:</p>
+<pre class="r"><code>install.packages(&quot;devtools&quot;)</code></pre>
 </div>
-<div id="exemplos-de-uso" class="section level2">
-<h2>Exemplos de uso</h2>
+<div id="instalação-do-soundmeter" class="section level2" number="2.3">
+<h2 number="2.3"><span class="header-section-number">2.3</span> Instalação do <em>soundmeteR</em></h2>
+<p>É possível encontrar as instruções de instalação do <em>soundmeteR</em> no repositório oficial do GitHub (<a href="https://github.com/ConservaSom/soundmeteR" class="uri">https://github.com/ConservaSom/soundmeteR</a>), mas para facilitar o processo, basta executar o código abaixo para instalar o <em>soundmeteR</em> e suas dependências:</p>
+<pre class="r"><code>devtools::install_github(&quot;ConservaSom/soundmeteR&quot;)</code></pre>
+<p>Para verificar se o <em>soundmeteR</em> foi instalado corretamente, basta carregar o pacote utilizando o comando abaixo (nenhuma mensagem de erro deve ser exibida):</p>
+<pre class="r"><code>library(&quot;soundmeteR&quot;)</code></pre>
 </div>
-<div id="calibrações" class="section level2">
-<h2>Calibrações</h2>
+</div>
+<div id="visão-geral-do-soundmeter" class="section level1" number="3">
+<h1 number="3"><span class="header-section-number">3</span> Visão geral do <em>soundmeteR</em></h1>
+<p>O pacote <em>soundmeteR</em> é uma ferramenta desenvolvida em R para extração de valores de energia sonora (pressão e intensidade) a partir de gravações em formato Wave (<em>.wav</em>). Ele oferece uma série de funções relacionadas ao fluxo de trabalho para obtenção destas medidas, incluindo a possibilidade de calibração para o cálculo de níveis absolutos de pressão e intensidade e aplicação de curvas de ponderação de frequências (curvas A, B C, Z). O pacote vem sendo aplicado em fluxos de trabalhos e nas análises alguns artigo científicos a alguns anos e atualmente está em fase final de desenvolvimento e preparação do manuscrito. Abaixo estão as funções principais e uma breve descrição de suas funcionalidades. O arquivo PDF do manual do pacote disponibilizado no GitHub (<a href="https://github.com/ConservaSom/soundmeteR" class="uri">https://github.com/ConservaSom/soundmeteR</a>) contém uma descrição detalhada de todas as funções disponíveis.</p>
+<table class=" lightable-classic" style="font-family: &quot;Arial Narrow&quot;, &quot;Source Sans Pro&quot;, sans-serif; margin-left: auto; margin-right: auto;border-bottom: 0;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Função
+</th>
+<th style="text-align:left;">
+Descrição
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<em>leqbands</em>
+</td>
+<td style="text-align:left;">
+Calcula o Nível Sonoro Equivalente (Leq) para arquivos para para um arquivos Wave em oitavas ou terças de oitavas
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<em>leqbands_cal</em>
+</td>
+<td style="text-align:left;">
+O mesmo que o <em>leqbands</em>, porém permite a calibração a partir de um sinal de referência dentro do mesmo arquivo Wave
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<em>soundmeter</em>
+</td>
+<td style="text-align:left;">
+Computa medidas similares às de um decibelímetro a partir de arquivos Wave, permitindo a escolha da janela de amostragem (fast ou slow) e apresenta medidas comumente encontradas nestes tipos de equipamentos como Leq, L10, L50, L90, Lmax, entre outras
+</td>
+</tr>
+</tbody>
+<tfoot>
+<tr>
+<td style="padding: 0; " colspan="100%">
+<sup></sup> <strong>Nota</strong>: Todas as funções permitem a escolha de diferentes curvas de ponderação de frequências (como curvas A, B, C e Z)
+</td>
+</tr>
+</tfoot>
+</table>
+</div>
+<div id="exemplos-de-uso" class="section level1" number="4">
+<h1 number="4"><span class="header-section-number">4</span> Exemplos de uso</h1>
+<div id="carregando-os-pacotes-e-o-arquivos-de-exemplo" class="section level2" number="4.1">
+<h2 number="4.1"><span class="header-section-number">4.1</span> Carregando os pacotes e o arquivos de exemplo</h2>
+<p>Carregando os pacotoes necessários:</p>
+<pre class="r"><code># carregar o pacote soundmeteR
+library(soundmeteR)
+# caregando seewave para visualização do sonogramas
+library(seewave)
+# carregando tuneR para manipulação de arquivos Wave
+library(tuneR)</code></pre>
+<p>Carregando o exemplo interno do pacote e visualizando o espectrograma. O exemplo é um canto de um <em>Thamnophilus stictocephalus</em> em uma gravação calibrada.</p>
+<pre class="r"><code># Carregando aquivo de exemplo do pacote soundmeteR (Thamnophilus stictocephalus)
+data(tham)
+
+# Corte do trecho do arquivo em que o canto da espécie aparece
+som &lt;- cutw(
+  tham,
+  from = 3.5, # zoom no tempo para o momento que o canto da espécies aparece
+  to = 7.2,
+  output = &quot;Wave&quot;
+)
+
+# verificando o arquivo
+som
+
+
+# Espectrograma do arquivo de exemplo
+spectro(
+  som,
+  flim = c(0, 8), # zoom na frequência
+  scale = FALSE
+)</code></pre>
+<p>Escutando o arquivo. Algumas máquinas e sistemas operacionais podem necessitar que você defina o reprodutor de áudio com a função <code>setWavPlayer()</code> do pacote <em>tuneR</em>.</p>
+<pre class="r"><code># Caso queira escutar o arquivo
+listen(
+  som
+)</code></pre>
+</div>
+<div id="aplicações-do-soundmeter-em-gravações-não-calibradas" class="section level2" number="4.2">
+<h2 number="4.2"><span class="header-section-number">4.2</span> Aplicações do <em>soundmeteR</em> em gravações não calibradas</h2>
+<p>A função <code>leqbands()</code> calcula o nível sonoro equivalente (Leq) em bandas de oitavas ou terças de oitavas para arquivos Wave. Quando utilizado em gravações não calibradas, a função retorna os valores em dBFS (decibéis em full scale - relativo ao ponto de distorção em 0 dB).</p>
+<pre class="r"><code># Leq por oitavas
+leqbands(
+  som,
+  band = &quot;octaves&quot;, # bandas de frequência utilizadas
+  weighting = &quot;A&quot; # curva de ponderação de frequências
+)
+
+# Leq por terças de oitavas
+leqbands(
+  som,
+  band = &quot;thirds&quot;, # bandas de frequência utilizadas
+  weighting = &quot;A&quot; # curva de ponderação de frequências
+)</code></pre>
+<p>A função <code>soundmeter()</code> calcula diversas medidas de níveis sonoros similares às medidas obtidas por um decibelímetro. Quando utilizado em gravações não calibradas, a função retorna os valores em dBFS (decibéis em full scale - relativo ao ponto de distorção em 0 dB).</p>
+<pre class="r"><code># soundmeter por oitavas
+soundmeter(
+  som,
+  tw = &quot;fast&quot;, # ponderação temporal &quot;fast&quot; ou &quot;slow&quot;
+  fw = &quot;A&quot;, # curva de ponderação de frequências
+  bands =  &quot;octaves&quot; # bandas de frequência utilizadas
+)
+
+# soundmeter por terças de oitavas
+soundmeter(
+  som,
+  tw = &quot;fast&quot;, # ponderação temporal &quot;fast&quot; ou &quot;slow&quot;
+  fw = &quot;A&quot;, # curva de ponderação de frequências
+  bands =  &quot;thirds&quot; # bandas de frequência utilizadas
+)</code></pre>
+</div>
+<div id="aplicação-do-soundmeter-em-gravações-com-calibração" class="section level2" number="4.3">
+<h2 number="4.3"><span class="header-section-number">4.3</span> Aplicação do <em>soundmeteR</em> em gravações com calibração</h2>
+<p>Para aplicar a calibração é necessário extrair o valor a partir de uma gravação com sinal de referência ou das especificações do aparelho e microfone utilizados. Aqui, realizaremos o a partir de uma gravação de um sinal de referência com pressão sonora conhecida.</p>
+<pre class="r"><code># definindo diretório de trabalho
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+
+# lendo o arquivo de calibração
+calib &lt;- readWave(&quot;./calibration/calibration.wav&quot;)
+
+# plotando no espectro
+spectro(
+  calib,
+  scale = F
+)
+
+# extraindo valor de calibração
+calib_value &lt;- calibration(
+  file = calib,
+  channel = &quot;left&quot;,
+  leqsignal = 94
+) %&gt;%
+  print()</code></pre>
+<p>Nesse momento utilizaremos o resultado obtido ao final da prática realizada com o pacote <em>monitoraSom</em> no turno anterior para obter valores de pressão sonora para as detecções de <em>Basileuterus culicivorus</em>.</p>
+<p>Abaixo realizamos a leitura das planilhas com as detecções utilizando uma função do pacote <em>monitoraSom</em>.</p>
+<pre class="r"><code>detections &lt;- monitoraSom::fetch_rois(
+  rois_path = &quot;./final_detecs&quot;,
+) %&gt;%
+  print()</code></pre>
+<p>A partir da planilha com as detecções, vamos extrair medidas de pressão sonora de cada detecção com a função <code>soundmeter</code>.</p>
+<pre class="r"><code>spl &lt;- soundmeter(
+  files = detections$soundscape_path,
+  channel = &quot;left&quot;,
+  from = detections$roi_start,
+  to = detections$roi_end,
+  CalibValue = calib_value,
+  tw = &quot;fast&quot;,
+  fw = &quot;A&quot;,
+  bands = &quot;octaves&quot;,
+  bandpass = c(2,10000)
+) %&gt;%
+  print()</code></pre>
 </div>
 </div>
-<div id="aplicação-prática" class="section level1">
-<h1>Aplicação prática</h1>
-<p>Artigo do basileuterus</p>
-<div id="calibração" class="section level2">
-<h2>Calibração</h2>
-</div>
-<div id="section" class="section level2">
-<h2></h2>
-</div>
+<div id="modelo-de-decaimento" class="section level1" number="5">
+<h1 number="5"><span class="header-section-number">5</span> Modelo de decaimento</h1>
+<pre class="r"><code>spl &lt;- spl %&gt;%
+  arrange(LAmax) %&gt;%
+  print()
+
+layout(matrix(1:20, nrow = 2, byrow = TRUE))
+
+for (i in seq_len(nrow(spl))) {
+  detec &lt;- readWave(
+    detections$soundscape_path[i],
+    from = detections$roi_start[i],
+    to = detections$roi_end[i],
+    units = &quot;seconds&quot;
+  )
+
+  spectro(
+    detec,
+    scale = FALSE
+  )
+
+  legend(
+    &quot;topright&quot;,
+    paste(
+      spl$LAmax[i],
+      &quot; dB&quot;
+    ),
+    bg = NULL,
+    cex = 2,
+    box.lwd = NA
+  )
+}</code></pre>
 </div>
 </div>
 
