@@ -91,7 +91,7 @@ matrix(
 
 ## Carregando os pacotes e o arquivos de exemplo
 
-Carregando os pacotoes necessários:
+Carregando os pacotes necessários:
 ```{r eval = FALSE}
 # carregar o pacote soundmeteR
 library(soundmeteR)
@@ -107,10 +107,19 @@ library(dplyr)
 library(ggplot2)
 ```
 
+## Aplicações do _soundmeteR_ em gravações não calibradas
+
 Carregando o exemplo interno do pacote e visualizando o espectrograma. O exemplo é um canto de um _Thamnophilus stictocephalus_.
 ```{r eval = FALSE}
 # Carregando aquivo de exemplo do pacote soundmeteR (Thamnophilus stictocephalus)
 data(tham)
+
+# Espectrograma do arquivo de exemplo
+spectro(
+  tham,
+  flim = c(0, 8), # zoom na frequência
+  scale = FALSE
+)
 
 # Corte do trecho do arquivo em que o canto da espécie aparece
 som <- cutw(
@@ -122,7 +131,6 @@ som <- cutw(
 
 # verificando o arquivo
 som
-
 
 # Espectrograma do arquivo de exemplo
 spectro(
@@ -139,8 +147,6 @@ listen(
   som
 )
 ```
-
-## Aplicações do _soundmeteR_ em gravações não calibradas
 
 A função `leqbands()` calcula o nível sonoro equivalente (Leq) em bandas de oitavas ou terças de oitavas para arquivos Wave. Quando utilizado em gravações não calibradas, a função retorna os valores em dBFS (decibéis em full scale -  relativo ao ponto de distorção em 0 dB).
 ```{r eval = FALSE}
@@ -322,3 +328,4 @@ cowplot::plot_grid(
   rel_widths = c(3, 1)
 )
 ```
+
