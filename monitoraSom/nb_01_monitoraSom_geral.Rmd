@@ -4,63 +4,65 @@ subtitle: "Roteiro para a oficina do I Simpósio de Física aplicada à Ecologia
 author: "Gabriel L. M. Rosa"
 date: "`r Sys.Date()`"
 output:
-  rmdformats::downcute:
-    number_sections: true
-    self_contained: true
-    thumbnails: true
-    lightbox: true
-    gallery: false
-    highlight: tango
+  pdf_document:
+    toc: yes
+    toc_depth: 5
+    number_sections: no
 ---
+
+<style>
+body {
+text-align: justify}
+</style>
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Instalação e setup inicial
+## 1. Instalação e configuração inicial
 
 Seja bem-vindo(a) ao tutorial do monitoraSom! Nessa primeira etapa, vamos fazer os downloads e instalações necessárias para o uso do monitoraSom.
 
-### 1. Baixar e instalar o R.
+### 1.1. Baixar e instalar o R
 
 - Verifique se já existe alguma versão instalada.
 - Ao fazer uma nova instalação, dê preferência para a versão mais recente.
 - link para download: https://cran.r-project.org/bin/windows/base/
 
-### 2. Baixar e instalar o Rstudio.
+### 1.2. Baixar e instalar o Rstudio
 - Após instalar o R, instale o Rstudio.
 - Atenção: se houver mais de uma versão do R instalada, certifique-se qual está sendo usada ao abrir o Rstudio.
 - link para download: https://posit.co/download/rstudio-desktop/
 
-### 3. Instalar o Rtools (passo necessário apenas para usuários do Windows)
+### 1.3. Instalar o Rtools (passo necessário apenas para usuários do Windows)
 - Rtools é necessário para compilar pacotes do R que foram instalados a partir do GitHub.
 - Verifique se já existe alguma versão instalada. Caso exista, verifique se é adequada ao projeto. Se não for, desinstale a versão existente.
 - Neste momento, a versão mais recente é a 4.5.
 - link para download: https://cran.r-project.org/bin/windows/Rtools/
 
-### 4. Criar uma nova pasta para conter os arquivos usandos pelo monitoraSom.
-Para usuários do Windows, recomendamos criar uma pasta para análises na raiz do sistema, e dentro dela uma pasta para este projeto, por exemplo, "C:/Meus Projetos/monitoraSom_tutorial". Dessa forma o caminho para os arquivos será o mesmo mesmo que os arquivos sejam movidos para outro computador.
+### 1.4. Criar uma nova pasta para conter os arquivos usados pelo monitoraSom
+Recomenda-se criar uma pasta para análises na raiz do sistema (ex: "C:/Meus Projetos/monitoraSom_tutorial"), garantindo que os caminhos permaneçam consistentes mesmo ao mover arquivos entre computadores.
 
-### 5. Instalar o devtools para poder instalar pacotes a partir do GitHub.
-Esse comando deve ser executado no Rstudio após a instalação do Rtools.
+### 1.5. Instalar o devtools
+Instala o pacote `devtools`, necessário para instalar pacotes diretamente do GitHub. Execute no RStudio após instalar o Rtools (apenas Windows).
 ```{r eval=FALSE, include=TRUE}
 install.packages("devtools")
 ```
 
-### 6. Carregar o devtools para o ambiente de trabalho.
+### 1.6. Carregar o devtools
 ```{r eval=FALSE, include=TRUE}
 library(devtools)
 ```
 
-### 7. Instalar o monitoraSom
-- O monitoraSom depende de outros pacotes do R para funcionar adequadamente.
-- Atenção 1: A isntalação poderá solicitar a confirmação de instalação das dependências. Recomendamos que seja feita a instalação ou atualização de todas as dependências respondendo '1' ("All").
-- Atenção 2: Pode ser solictada também a resposta sobre instalação de pacotes de precisam de compilação. Nesse caso, responda 'Yes'.
+### 1.7. Instalar o monitoraSom
+Instala o pacote `monitoraSom` e suas dependências diretamente do GitHub. Durante a instalação:
+- Se solicitado, responda '1' para instalar todas as dependências ("All")
+- Se solicitado sobre compilação, responda 'Yes'
 ```{r eval=FALSE, include=TRUE}
 install_github("ConservaSom/monitoraSom", dependencies = TRUE)
 ```
 
-### 8. Carregar o monitoraSom no ambiente de trabalho do R para testar a instalação.
+### 1.8. Carregar o monitoraSom no ambiente de trabalho do R para testar a instalação
 ```{r message=FALSE, warning=FALSE}
 library(monitoraSom)
 library(dplyr)
@@ -68,66 +70,50 @@ library(ggplot2)
 library(patchwork)
 ```
 
-### 9. Salvar esse script no diretório de trabalho conforme descrito no passo 4.
-Priorize salvar com um nome informativo e que mantenha a sequência de passos desse e dos tutoriais seguintes, por exemplo, "script_01_instalação.R".
+### 1.9. Salvar o script
+Salve o script no diretório de trabalho (passo 1.4) com nome descritivo, por exemplo: "script_01_instalação.R".
 
-### Checkpoint 01
-Você instalou o monitoraSom e está pronto para começar a usar. Salve esse script no diretório de trabalho conforme descrito no passo 4.
+### 1.10. Checkpoint 01 - Instalação do monitoraSom
+Você instalou o monitoraSom e está pronto para começar a usar. Salve esse script no diretório de trabalho conforme descrito no passo 1.4.
 
-### 10. Organizando o ambiente de trabalho.
-Vamos seguir a partir deste ponto assumindo que o diretório de trabalho está organizado conforme descrito no passo 4 e que o código está salvo em um arquivo em formato de script ou notebook (Rmarkdown ou Quarto).
+## 2. Organizando o ambiente de trabalho
+Vamos seguir a partir deste ponto assumindo que o diretório de trabalho está organizado conforme descrito no passo 1.4 e que o código está salvo em um arquivo em formato de script ou notebook (Rmarkdown ou Quarto).
 
-Vamos verificar e, se necessário, ajustar manualmente o diretório de trabalho da sessão atual.
-```{r}
+### 2.1. Verificar e ajustar o diretório de trabalho
+Verifica o diretório de trabalho atual. Se necessário, ajuste usando um dos métodos abaixo.
+```{r }
 getwd()
 ```
 
-Se o script estiver no diretório de trabalho correto, use o comando abaixo para definir o diretório automaticamente.
-```{r}
+**Método 1 - Automático (recomendado):** Define o diretório automaticamente baseado na localização do script.
+```{r eval=FALSE}
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-getwd() # Verificando se o diretório de trabalho foi definido corretamente
+getwd()
 ```
 
-Se quiser definir manualmente o diretório de trabalho, use o comando abaixo.
+**Método 2 - Manual:** Define o caminho manualmente para o diretório do projeto.
 ```{r eval=FALSE}
 project_path <- paste0(
     "<coloque aqui o caminho para a pasta do projeto>", "/monitoraSom"
 )
 setwd(project_path)
-getwd() # Verificando se o diretório de trabalho foi definido corretamente
+getwd()
 ```
 
-```{r eval=TRUE, echo=FALSE}
+```{r eval=FALSE, echo=FALSE}
 project_path <- paste0(getwd(), "/monitoraSom")
 setwd(project_path)
 getwd() # Verificando se o diretório de trabalho foi definido corretamente
 ```
 
-### 11. Povoando o diretório de trabalho com os arquivos de exemplo do monitoraSom.
-Use a função `set_workspace` para adicionar os arquivos de exemplo do monitoraSom ao seu diretório de trabalho. Esse comando é recomendado para novos projetos. Evite executá-lo em diretórios que já contenham dados de projetos em andamento. Isso poderá resultar em perdas permanentes de dados.
+### 2.2. Carregar arquivos de exemplo
+Cria a estrutura de diretórios e carrega arquivos de exemplo necessários para o tutorial. **Atenção:** Execute apenas em projetos novos, pois pode sobrescrever dados existentes.
 ```{r eval=FALSE}
 set_workspace(project_path = "./", example_data = TRUE)
 ```
 
-Vamos fazer algumas checagens para verificar se os arquivos de exemplo foram depositados corretamente. Em um prjeto recém iniciado, o usuário deverá ter pelo menos os arquivos das soundscapes, e caso deseje extrair templates de outras gravações, uma pasta chamada "recordings". Todos os demais arquivos estão precarregados no pacote para facilitar o uso do monitoraSom. Caso não tenha os arquivos de exemplo, execute o comando `set_workspace` novamente.
-
-Estes são os arquivos das soundscapes onde buscamos a espécie alvo:
-```{r}
-list.files("./soundscapes/", full.names = TRUE)
-```
-
-Estes são os arquivos das gravações focais de onde serão extraídos templates:
-```{r}
-list.files("./recordings/", full.names = TRUE)
-```
-
-Estes são os arquivos com as regiões de interesse determinadas nas gravações focais e soundscapes:
-```{r}
-list.files("./roi_tables/", full.names = TRUE)
-```
-
-### 12. (Opcional) Limpeza de arquivos pre-carregados
-Vamos apagar os arquivos de exemplo para continuar o tutorial como um novo projeto. Pule esta etapa se quiser obter os mesmos resultados do tutorial.
+### 2.3. (Opcional) Limpar arquivos de exemplo
+Remove os arquivos de exemplo para iniciar um projeto do zero. Pule esta etapa se desejar usar os dados de exemplo originais.
 ```{r eval=FALSE}
 file.remove(list.files("./detections/", full.names = TRUE))
 file.remove(list.files("./match_grid_metadata/", full.names = TRUE))
@@ -138,11 +124,15 @@ file.remove(list.files("./templates_metadata/", full.names = TRUE))
 file.remove(list.files("./validation_outputs/", full.names = TRUE))
 ```
 
-### Checkpoint 02
+### 2.4. Checkpoint 02 - Povoamento do diretório de trabalho com os arquivos de exemplo
 Você povoou o diretório de trabalho com os arquivos de exemplo do monitoraSom e está pronto para seguir com o uso do pacote. Apague os arquivos de exemplo se quiser começar um novo projeto.
 
-### 13. Usar o app de segmentação para escolher os templates.
-Agora vamos usar o app de segmentação para escolher os templates. Note que como estamos somente escolhendo os templates, definimos o destino dos cortes de audio para a pasta "./templates". Os templates são as amostras de som que desejamos usar para detecção nos passos seguintes. Podemos exportar os templates manualmente de dentro do app, mas nesse tutorial vamos usar o app somente para demarcar as ROIs, para depois exportar os cortes de audio automaticamente (ver passo 16).
+## 3. Preparação de templates e soundscapes
+
+### 3.1. Selecionar templates usando o app de segmentação
+Abre o app de segmentação para marcar as regiões de interesse (ROIs) que servirão como templates. Os templates são amostras de som usadas para detecção automática. Neste passo, definimos `cuts_path = "./templates/"` para indicar onde os cortes serão exportados. Os templates serão exportados automaticamente no passo 3.4.
+
+**Nota:** No exemplo, os ROIs já estão criados. Para criar um novo template, marque um canto completo e adicione o comentário "Complete Song".
 ```{r eval=FALSE}
 launch_segmentation_app(
     user = "User", # Nome do usuário
@@ -159,8 +149,8 @@ launch_segmentation_app(
 )
 ```
 
-### 14. Usar o app de segmentação para segmentar as soundscapes.
-Agora vamos usar o app de segmentação para segmentar as soundscapes. Nessa etapa, definimos o destino dos cortes de audio para a pasta "./roi_cuts". As tabelas de ROIs que serão produzidas nessa etapa serão usadas para avaliar as detecções e medir a poerformance de cada template.
+### 3.2. Segmentar as soundscapes
+Abre o app de segmentação para marcar ROIs nas soundscapes. As tabelas de ROIs geradas serão usadas para validar as detecções e avaliar o desempenho dos templates. Os cortes de áudio são salvos em `./roi_cuts/`. **Nota:** No exemplo, a segmentação já está completa; não é necessário marcar novas ROIs.
 ```{r eval=FALSE}
 launch_segmentation_app(
     user = "User", project_path = "./", preset_path = "./app_presets/",
@@ -170,14 +160,14 @@ launch_segmentation_app(
 )
 ```
 
-### 15. Preparando os templates.
-Vamos importar todas as tabelas de ROIs para verificarmos se temos o que precisamos. Note que as tabelas de ROIs das soundscapes e dos templates encontram-se na mesma pasta, mas podemos discriminá-las facilmentepelo nome do arquivo.
+### 3.3. Preparar os templates
+Importa todas as tabelas de ROIs e filtra apenas aquelas marcadas como templates. As ROIs de templates e soundscapes estão na mesma pasta, mas podem ser diferenciadas pelo nome do arquivo ou comentário.
 ```{r}
 df_rois <- fetch_rois(rois_path = "./roi_tables/")
 unique(df_rois$soundscape_file) # Verificando os nomes das gravações
 ```
 
-Filtrando as tabelas de ROIs para manter somente aquelas com os templates.
+Filtra as ROIs para manter apenas os templates desejados (uma amostra de cada um dos tipos de interesse).
 ```{r}
 df_templates <- df_rois %>%
     filter(roi_comment %in% c("Substructure C", "Complete Song")) %>%
@@ -186,45 +176,43 @@ df_templates <- df_rois %>%
 glimpse(df_templates)
 ```
 
-### 16. Exportando os cortes de audio dos templates.
-Para exportar os cortes de audio dos templates, usamos a função `export_roi_cuts()`. Note que os cortes de audio serão exportados para a pasta "./templates".
+### 3.4. Exportar os cortes de áudio dos templates
+Extrai e salva os cortes de áudio das ROIs marcadas como templates na pasta `./templates/`.
 ```{r eval=FALSE}
-export_roi_cuts(df_rois = df_templates, roi_cuts_path = "./templates/")
+export_roi_cuts(
+    df_rois = df_templates, roi_cuts_path = "./templates/", overwrite = FALSE
+)
 list.files(path = "./templates/", pattern = "Bcu", full.names = TRUE)
 ```
 
-### Checkpoint 03
-Aqui você deve decidir: se deseja seguir com o processo simplificado (função `template matching()`) execute o passo 17, ou se deseja seguir com o processo detalhado, execute os passos 18-21.
-<!-- todo Definir os passos aqui -->
+### 3.5. Checkpoint 03 - Decisão sobre o método de processamento
+Aqui você deve decidir: se deseja seguir com o processo simplificado (função `template_matching()`) execute o passo 4.1, ou se deseja seguir com o processo detalhado, execute os passos 4.2-4.5.
 
-### 17. Obtendo as detecções (processo simplificado)
-Vamos usar o processo simplificado para obter as detecções. Esse processo é mais rápido e fácil, mas menos flexível. Ele é recomendado para projetos pequenos e para quem deseja obter rapidamente os resultados. Nesse caso vamos exportar os resultados para o arquivo "./detections/df_detecs.csv" e usar 4 núcleos para processamento paralelo, para ganhar um pouco de velocidade.
+## 4. Obtendo as detecções
+
+### 4.1. Processo simplificado
+Método mais rápido e direto para obter detecções, recomendado para projetos pequenos. A função `template_matching()` processa automaticamente todos os arquivos e retorna as detecções. Usa 4 núcleos para processamento paralelo.
 ```{r}
-template_matching(
-    soundscapes_path = "./soundscapes/", # local de origem das soundscapes
-    templates_path = "./templates/", # local de origem dos templates
-    output_file = "./detections/df_detecs.csv", # resultado (detecções)
+df_detecs <- template_matching(
+    soundscapes_path = "./soundscapes/",
+    templates_path = "./templates/",
     ncores = 4
 )
+glimpse(df_detecs)
 ```
 
-### 18. Processando os metadados das soundscapes (processo detalhado).
-
-No processo detalhado, precisamos reunir os metadados das soundscapes e dos templates separadamente. Vamos começar pelas soundscapes.
-```{r eval=FALSE}
+### 4.2. Processo detalhado: metadados das soundscapes
+No processo detalhado, os metadados são processados separadamente, permitindo maior controle e filtragem antes do template matching. Começamos coletando informações das soundscapes (duração, taxa de amostragem, caminho, etc.).
+```{r}
 df_soundscapes <- fetch_soundscape_metadata(
-    soundscapes_path = "./soundscapes", # caminho para as soundscapes
-    recursive = TRUE, # se TRUE, lê subdiretórios de forma recursiva
-    # caminho para onde exportar o arquivo de metadados
-    output_file = "./soundscapes_metadata/df_soundscapes.csv",
-    ncores = 4, # quantidade de núcleos para processamento paralelo
-    # se TRUE, pula o processamento de arquivos já registrados nos metadados
-    skip_processed = TRUE
+    soundscapes_path = "./soundscapes",
+    recursive = TRUE, # Inclui subdiretórios
+    ncores = 4 # Processamento paralelo
 )
 glimpse(df_soundscapes)
 ```
 
-Visualizando rapidamente os espectrogramas das soundscapes para verificar se os arquivos foram importados corretamente.
+Visualização dos espectrogramas das duas primeiras soundscapes para verificar a importação correta.
 ```{r eval=TRUE, echo=FALSE}
 cowplot::plot_grid(
     tuneR::readWave(filename = df_soundscapes$soundscape_path[1]) %>%
@@ -249,8 +237,8 @@ cowplot::plot_grid(
 )
 ```
 
-### 19. Processando os metadados dos templates (processo detalhado).
-Agora vamos importar os metadados dos templates.
+### 4.3. Processo detalhado: metadados dos templates
+Coleta os metadados dos templates (duração, frequências, taxa de amostragem, etc.). Mesmo que os templates já tenham sido importados no passo 3.3, este passo garante que os metadados estejam completos e atualizados.
 ```{r}
 df_templates <- fetch_template_metadata(
     templates_path = "./templates/", recursive = TRUE
@@ -276,12 +264,12 @@ templates_plots <- purrr::map(df_templates$template_path, ~ {
 })
 cowplot::plot_grid(
     templates_plots[[1]], templates_plots[[2]],
-    ncol = 2, rel_widths = c(1, 0.35)
+    ncol = 2, rel_widths = c(0.3, 1)
 )
 ```
 
-### 20. Juntando os metadados das soundscapes e dos templates (processo detalhado).
-O template matching pode ser custoso para grandes quantidades de arquivos. O processo detalhado permite filtrar e organizar os dados antes do processamento total. A função `fetch_match_grid()` combina os metadados das soundscapes e templates e checa incompatibilidades, como taxas de amostragem diferentes.
+### 4.4. Processo detalhado: criar grade de busca
+Cria uma grade combinando todas as combinações possíveis de soundscapes × templates. A função `fetch_match_grid()` verifica incompatibilidades (ex: taxas de amostragem diferentes) e permite filtrar dados antes do processamento, otimizando o template matching.
 ```{r}
 df_grid <- fetch_match_grid(
     soundscape_data = df_soundscapes, template_data = df_templates
@@ -289,82 +277,81 @@ df_grid <- fetch_match_grid(
 glimpse(df_grid)
 ```
 
-### 21. Obtendo as detecções (processo detalhado)
-Agora vamos rodar o template matching usando a grade produzida acima como referência. Abaixo mostramos como rodar o template matching usando a função `run_matching()` e mais alguns recursos que essa função oferece.
-```{r}
+### 4.5. Processo detalhado: executar template matching
+Executa o template matching usando a grade criada no passo anterior. A função `run_matching()` oferece várias opções de filtragem e configuração, conforme detalhado abaixo.
+```{r eval=FALSE}
 run_matching(
     df_grid = df_grid,
-    output_file = "./detections/df_detecs.csv", # arquivo com as detecções
-    autosave_action = "replace", # ação ao salvar o arquivo
-    buffer_size = "template", # buffer para evitar detecções sobrepostas
-    ncores = 4 # quantidade de núcleos para processamento em paralelo
+    output_file = "./detections/df_detecs.csv",
+    autosave_action = "replace", # Substitui arquivo existente
+    buffer_size = "template", # Evita detecções sobrepostas
+    ncores = 4
 )
 df_detecs <- read.csv(file = "./detections/df_detecs.csv")
 glimpse(df_detecs)
 ```
 
-Dentre as opções disponíveis para o argumento `autosave_action`, temos:
-- "replace": sobrescreve o arquivo existente.
-- "append": adiciona os resultados ao arquivo existente, mas deve ser usado com cuidado para evitar detecções duplicadas ao importar o arquivo.
+**Opções de `autosave_action`:**
+- `"replace"`: sobrescreve o arquivo existente
+- `"append"`: adiciona resultados ao arquivo existente (cuidado com duplicatas)
 
-Dentre as opções disponíveis para o argumento `buffer_size`, temos:
-- "template": buffer para evitar detecções sobrepostas em uma região de mesma duração do template.
-- Valores inteiros: define a quantidade de frames para o buffer.
-- 0: desliga o buffer, permitindo detecções sobrepostas em uma região de mesma duração do template. Essa opção é recomendada somente para projetos em que a validação não será realizada manualmente, já que retém muitas detecções redundantes.
+**Opções de `buffer_size`:**
+- `"template"`: buffer com duração igual ao template (evita sobreposições)
+- Valor numérico: quantidade de frames para o buffer
+- `0`: desliga o buffer (não recomendado para validação manual)
 
-Outras opções de filtragem disponíveis são:
-- `min_score`: define o score mínimo para detecção. Essa opção determina um limiar mínimo para a detecção, excluindo todas as detecções com scores inferiores ao valor especificado. Deve ser usada com cuidadado, pois pode eliminar completamente soundscapes e templates sem scores acima do limiar especificado, e assim eliminar a possibilidade de contagem correta de FN (False Negatives) para validação a priori (ver passo 23).
-- `min_quant`: define o quantil mínimo para detecção. Essa opção avalia o quantil dentro de cada rodada de busca, excluindo todas as detecções com scores inferiores ao quantil especificado. Como o quantil é uma medida relativa, retornará sempre ao menos uma detecção para cada rodada de busca.
-- `top_n`: define de forma explícita a quantidade de detecções com os scores mais altos a serem retidas. Essa opção retornará sempre a quantidade de detecções especificada, independente do valor máximo e mínimo de scores obtidos.
+**Outras opções de filtragem:**
+- `min_score`: score mínimo absoluto para detecção. **Cuidado:** pode eliminar templates/soundscapes sem detecções acima do limiar, impedindo cálculo correto de FN na validação (ver passo 5.1)
+- `min_quant`: quantil mínimo relativo (sempre retorna pelo menos uma detecção por busca)
+- `top_n`: quantidade fixa de detecções com maiores scores a serem retidas
 
-
-### 22. Caso especial: Obtendo os scores brutos.
-Vamos usar a função `run_matching()` para fazer as buscas na grade definida, exatamente como no passo 21, mas vamos adicionar o argumento `output = "scores"` para obter os scores brutos ao invés de ir direto para as detecções. Note que mudamos dois argumentos: `output` e `output_file`. `output` define o tipo de resultado que será retornado e `output_file` define o caminho para o arquivo de saída, que agora será um arquivo RDS em vez de CSV.
+### 4.6. Caso especial: obter scores brutos
+Retorna os scores brutos (antes da filtragem) em vez das detecções processadas. Útil para análise detalhada e ajuste de limiares. O arquivo de saída será em formato RDS (não CSV).
 ```{r}
 run_matching(
     df_grid = df_grid,
-    output = "scores", # arquivo com os scores brutos
-    output_file = "./detections/df_scores.rds", # arquivo com os scores brutos
-    ncores = 4 # quantidade de núcleos para processamento em paralelo
+    output = "scores",
+    output_file = "./detections/df_scores.rds",
+    ncores = 4
 )
 glimpse(df_scores)
 ```
 
-E importamos o arquivo de scores de volta para o ambiente de trabalho usando a função `readRDS()` seguindo o mesmo caminho do arquivo de saída. Ao inspecionar o objeto importado, vemos que ele retém todas as informações da grade de busca, mas agora com os scores brutos para cada combinação de template e soundscape armazenados como elementos de uma lista no lugar da coluna `score_vec`.
+Importa os scores brutos de volta ao ambiente. O objeto mantém a estrutura da grade de busca, mas a coluna `score_vec` contém uma lista com data frames de scores por frame (tempo e score) para cada combinação template-soundscape.
 ```{r eval=FALSE}
 df_scores <- readRDS(file = "./detections/df_scores.rds")
 glimpse(df_scores)
 ```
 
-Para entender melhor como os scores brutos são armazenados, vamos inspecionar o primeiro elemento da lista depositada na coluna `score_vec`. Note que one em um data frame normal seria um valor único, temos outro data frame composto por 2 variáveis, `time_vec`, contendo os valores de tempo em segundos para cada frame do espectrograma da soundscape, e `score_vec`, contendo os scores brutos computados para cada um desses frames.
+Inspeciona a estrutura dos scores brutos: cada elemento de `score_vec` é um data frame com `time_vec` (tempo em segundos) e `score_vec` (score do template matching para cada frame do espectrograma).
 ```{r}
 glimpse(df_scores$score_vec[[20]])
 ```
 
-### 23. Visualizando os scores brutos.
-Vamos visualizar os scores brutos para poder entender melhor como as detecções foram produzidas. Notamos nessa primeira versão que precisamos de alguns ajustes para entender melhor o que está acontecendo.
+### 4.7. Visualizar os scores brutos
+Visualiza os scores brutos ao longo do tempo para entender como as detecções foram geradas. A primeira visualização usa parâmetros padrão.
 ```{r}
 plot_scores(df_scores_i = df_scores[7, ])
 ```
 
-Agora a mesma visualização, mas com os scores ajustados para melhor visualização.
-```{r}
+Visualização com parâmetros ajustados para melhor resolução e contraste.
+```{r message=FALSE}
 plot_scores(
     df_scores_i = df_scores[7, ], ovlp = 90, wl = 1024,
     dyn_range = c(-96, -48), color_scale = "inferno"
 )
 ```
 
-Mais um pouco de zoom agora para ver o pico correspondente a uma detecção mais promissora.
-```{r}
+Zoom na região de tempo 5-10 segundos para visualizar um pico de detecção em detalhe.
+```{r message=FALSE}
 plot_scores(
     df_scores_i = df_scores[7, ], ovlp = 70, wl = 1024,
     dyn_range = c(-96, -48), color_scale = "inferno", zoom_time = c(5, 10)
 )
 ```
 
-Como as camadas de filtragem demonstradas no passo 21 ainda não foram aplicadas nesse caso, podemos experimentar as consequencias de aplica-las diretamente sobre os scores brutos nos proprios argumentos da função `plot_scores()`. Para isso vamos remover o zoom para ver o que está acontecendo em toda a extensão da soundscape. Nesse primeiro exemplo vamos deixar o buffer ativo e reter as 10 detecções com os scores mais altos.
-```{r}
+Aplica filtros diretamente na visualização: buffer ativo e retenção das 6 detecções com maiores scores (`top_n = 6`). Útil para testar diferentes configurações antes de processar todas as detecções.
+```{r message=FALSE}
 plot_scores(
     df_scores_i = df_scores[7, ], ovlp = 70, wl = 1024,
     dyn_range = c(-96, -48), color_scale = "inferno",
@@ -372,8 +359,8 @@ plot_scores(
 )
 ```
 
-Agora vamos desligar o buffer e reter somente as detecções com scores acima de 0.1. Podemos ver que nesse caso o limiar de 0.1 ainda não foi suficiente para eliminar todas as detecções que conseguimos ver que são claramente falsas.
-```{r}
+Testa filtro por score mínimo (`min_score = 0.1`) sem buffer. Neste exemplo, o limiar de 0.1 ainda retém algumas detecções falsas visíveis.
+```{r message=FALSE}
 plot_scores(
     df_scores_i = df_scores[7, ], ovlp = 70, wl = 1024,
     dyn_range = c(-96, -48), color_scale = "inferno",
@@ -381,7 +368,8 @@ plot_scores(
 )
 ```
 
-```{r}
+**Importante:** Os parâmetros de filtragem que funcionam para uma soundscape podem não ser adequados para outras. A validação sistemática é essencial para definir limiares ideais.
+```{r message=FALSE}
 plot_scores(
     df_scores_i = df_scores[11, ], ovlp = 70, wl = 1024,
     dyn_range = c(-96, -48), color_scale = "inferno",
@@ -389,7 +377,7 @@ plot_scores(
 )
 ```
 
-A avaliação visual ajuda no ajuste inicial, mas não basta para escolher o melhor limiar. É preciso validar as detecções para definir o corte ideal de score para todo o conjunto de soundscapes. Antes prosseguir, vamos extrair as detecções desejadas a partir do arquivo de scores brutos, mas agora retendo todas as detecções, sem aplicar nenhum filtro. Note que temos 41,732 detecções no total.
+A avaliação visual é útil para ajuste inicial, mas a validação sistemática é necessária para definir limiares ideais. Extrai todas as detecções dos scores brutos sem filtros para validação completa.
 
 ```{r}
 df_detecs_nofilt <- fetch_score_peaks(
@@ -400,11 +388,13 @@ df_detecs_nofilt <- fetch_score_peaks(
 glimpse(df_detecs_nofilt)
 ```
 
-### Checkpoint 04
+### 4.8. Checkpoint 04 - Filtragem adicional de detecções
 Você obteve as detecções, mas veja que ainda não sabe quais são verdadeiras ou falsas. Nesse checkpoint você poderá fazer fitragens adicionais às demonstradas no passo acima segundo os critérios do seu projeto. Nesse ponto será necessário determinar qual método de validação será usado.
 
-### 23. Validando as detecções (método a priori)
-O método de validação a priori é o mais completo e rápido, pois é baseado na sobreposição temporal entre as detecções e as ROIs para a classificação de cada detecção como verdadeira ou falsa. Esse método é recomendado sempre que dados de segmentação estiverem disponíveis, pois permite a contagem correta de FN (False Negatives), a partir das ROIs que não foram alcançadas por nenhuma detecção. Nesse caso vamos usar a função `validate_by_overlap()` para validar as detecções.
+## 5. Validação das detecções
+
+### 5.1. Validação a priori
+Método automático baseado na sobreposição temporal entre detecções e ROIs pré-marcadas. Classifica cada detecção como TP (verdadeiro positivo), FP (falso positivo) ou FN (falso negativo). **Recomendado sempre que houver ROIs disponíveis**, pois permite contagem correta de FN e é muito mais rápido que validação manual.
 ```{r}
 df_validated <- validate_by_overlap(
     df_detecs = df_detecs, df_rois = df_rois, validation_user = "User"
@@ -412,29 +402,32 @@ df_validated <- validate_by_overlap(
 glimpse(df_validated)
 ```
 
-### 24. Checagens sanitárias das detecções validadas.
-Inspecionando o objeto com os resultados da validação, podemos ver todas as variáveis da tabela de detecções, mas agora também agregamos dados sobre as ROIs para os casos de correspondência, revelando todos os pares de detecção x ROI, bem como as ROIs que não foram alcançadas por nenhuma detecção. O status de cada detecção é armazenado na coluna `validation`, que pode ter os valores `TP` (verdadeiro positivo ou detecção confirmada ), `FP` (falso positivo ou detecção falsa) ou `FN` (falso negativo ou detecção não alcançada). Vejamos as contagens dessa classificação para cada template.
+### 5.2. Inspecionar resultados da validação
+O objeto validado contém todas as variáveis das detecções originais, mais informações sobre as ROIs correspondentes. A coluna `validation` classifica cada detecção/ROI como:
+- `TP`: verdadeiro positivo (detecção correta)
+- `FP`: falso positivo (detecção incorreta)
+- `FN`: falso negativo (ROI não detectada)
+
+Contagem de validações por template:
 ```{r}
 table(df_validated$validation, df_validated$template_name)
 ```
 
-Mas antes disso, vamos relembrar a quantidade de detecções que obtivemos com cada método. A versão não filtrada tem 41,732 detecções, enquanto a versão filtrada tem 4,363 detecções..
+Comparação do número de detecções entre métodos:
 ```{r}
 nrow(df_detecs)
 nrow(df_detecs_nofilt)
 ```
 
-É importante ressaltar que tanto `df_detecs`, sua versão não filtrada, quanto `df_validated`, reunem as detecções e detecções validades de todos os templates de forma agregada, apesar dos processos serem computados separadamente para cada template.
-
-Vamos comparar o desempenho do método de validação a priori em diferentes cenários. Ao aplicar a validação na versão filtrada das detecções, temos um processo rápido devido à menor quantidade de detecções. Já na versão não filtrada, o número de detecções é consideravelmente maior, e, ainda assim, o tempo de processamento permaneceu eficiente. Isso mostra que mesmo trabalhando com grandes volumes de dados, a validação automática ocorre de forma muito rápida. Portanto, além de permitir a validação da totalidade das detecções, a abordagem automatizada elimina a necessidade de checagem manual, sendo muito mais ágil e prática do que o método manual (a posteriori), apresentado a seguir. Por isso, nós, os desenvolvedores, recomendamos o uso do método de validação a priori sempre que possível.
+Comparação de desempenho da validação a priori em diferentes cenários: o método é eficiente mesmo com grandes volumes de dados. A validação automática é muito mais rápida que a manual e permite validar todas as detecções sem esforço.
 ```{r}
-# Cronometrando o tempo de processamento da validação das detecs filtradas
+# Tempo de processamento: detecções filtradas
 system.time({
     validate_by_overlap(
         df_detecs = df_detecs, df_rois = df_rois, validation_user = "User"
     )
 })
-# Cronometrando o tempo de processamento da validação das detecs não filtradas
+# Tempo de processamento: detecções não filtradas
 system.time({
     validate_by_overlap(
         df_detecs = df_detecs_nofilt, df_rois = df_rois, validation_user = "User"
@@ -442,18 +435,18 @@ system.time({
 })
 ```
 
-### 25. Validando as detecções (método a posteriori)
-Quando não temos dados de segmentação manual, podemos validar as detecções manualmente. Nesse caso vamos usar o app de validação manual do monitoraSom. Mas antes de prosseguir, vamos fazer uma cópia da tabela de detecções para não perdermos os dados originais.
+### 5.3. Validação a posteriori (manual)
+Quando não há ROIs pré-marcadas, a validação deve ser feita manualmente usando o app interativo. Primeiro, fazemos uma cópia do arquivo de detecções para preservar os dados originais.
 ```{r eval=FALSE}
 file.copy(
     from = "./detections/df_detecs.csv",
     to = "./detections/df_detecs_aposteriori.csv",
-    overwrite = FALSE # para evitar sobrescrever a cópia, caso já exista
+    overwrite = FALSE
 )
 ```
 
-Agora vamos usar o app de validação manual para validar as detecções.
-```{r}
+Abre o app de validação manual. No app, você visualiza cada detecção junto com o template correspondente e classifica como TP ou FP. O resultado será salvo no arquivo `./detections/df_detecs_aposteriori.csv`.
+```{r eval=FALSE}
 launch_validation_app(
     project_path = ".", validation_user = "User",
     templates_path = "./templates/", soundscapes_path = "./soundscapes/",
@@ -465,56 +458,72 @@ launch_validation_app(
 )
 ```
 
-### 26. Importando e inspecionando os resultados da validação a posteriori.
-Agora vamos importar o arquivo de detecções validadas de volta para o ambiente de trabalho usando a função `read.csv()` seguindo o mesmo caminho do arquivo de saída.
-```{r}
+### 5.4. Importar resultados da validação a posteriori
+Importa o arquivo de detecções validadas manualmente de volta ao ambiente de trabalho.
+```{r eval=FALSE}
 df_detecs_aposteriori <- read.csv(
     file = "./detections/df_detecs_aposteriori.csv"
 )
 glimpse(df_detecs_aposteriori)
 ```
 
-NV = not validated
-```{r}
+```{r eval=FALSE}
 table(
-    df_detecs_aposteriori$validation, df_detecs_aposteriori$template_name
+    df_detecs_aposteriori$validation,
+    df_detecs_aposteriori$template_name
 )
 ```
 
-### 27. Comparando os resultados das validações a priori e a posteriori.
-Vamos comparar os resultados das validações a priori e a posteriori.
-```{r}
+### 5.5. Comparar validações a priori e a posteriori
+Compara os resultados dos dois métodos de validação. Note que a validação a posteriori não permite contagem de FN, pois não há ROIs pré-marcadas como referência.
+```{r eval=FALSE}
 df_rois %>%
     filter(!grepl("Bcu", soundscape_file)) %>%
     nrow()
+```
 
+```{r eval=FALSE}
 nrow(df_detecs_aposteriori)
+```
+
+```{r eval=FALSE}
 table(df_detecs_aposteriori$validation, df_detecs_aposteriori$template_name)
 ```
 
-### 28. Diagnósticos de performance.
+## 6. Diagnósticos de performance e resultados finais
 
-Quando trabalhamos com detecção automática, especialmente utilizando métodos como template matching, é fundamental avaliar métricas de performance como a precision (precisão) e recall ou sensitivity (sensibilidade). A precisão quantifica quantas das detecções obtidas estão corretas, enquanto o recall mede quantas das ocorrências dos sinais alvo foram de fato detectadas.
+### 6.1. Diagnósticos de performance
 
-Essas métricas geralmente apresentam uma relação de toma-lá-dá-cá: aumentar o limiar para considerar detecções verdadeiras pode aumentar a precisão (menos FP), mas também pode diminuir o recall (mais FN). Por outro lado, abaixar o limiar pode aumentar o recall mas reduzir a precisão. Portanto, avaliar os resultados em termos de precision e recall é essencial para escolher o limiar ideal do template matching para seu objetivo, seja ele minimizar falsos positivos, maximizar a recuperação de eventos ou buscar um equilíbrio entre ambos.
+Avaliação de métricas de performance é essencial para otimizar o template matching:
 
-A função `diagnostic_validations()` produz uma lista com os diagnósticos de performance para cada template.
+- **Precision (precisão):** proporção de detecções que são verdadeiras
+- **Recall (sensibilidade):** proporção de ocorrências do sinal que foram detectadas
+
+Existe uma relação de trade-off: aumentar o limiar de score aumenta a precisão (menos FP) mas diminui o recall (mais FN), e vice-versa. A escolha do limiar ideal depende do objetivo: minimizar falsos positivos, maximizar detecções ou buscar um equilíbrio.
+
+Calcula diagnósticos de performance para cada template, incluindo métricas em função de diferentes limiares de score.
 ```{r}
 ls_val_apriori <- diagnostic_validations(
     df_validated = df_validated, pos_prob = 0.90, val_a_priori = TRUE
 )
-# Separando os resultados para cada template
+# Extrai resultados para cada template
 res_template1 <- ls_val_apriori[[1]]
 res_template2 <- ls_val_apriori[[2]]
 ```
 
-Inspecionando os diagnósticos de performance para cada template. Os dataframes contém todas as métricas de performance para cada template em função dos limiares de score avaliados.
+Inspeciona os diagnósticos: cada data frame contém métricas de performance (precision, recall, etc.) calculadas para diferentes limiares de score.
 ```{r}
 res_template1$diagnostics %>% glimpse()
 res_template2$diagnostics %>% glimpse()
 ```
 
-Nos resultados de cada templates também temos disponíveis os gráficos de métricas de performance em função dos limiares de score avaliados. Na primeira coluna temos os dados do primeiro template, aquele composto somete pela parte final do canto, enquanto na segunda coluna temos os dados do segundo template, aquele composto pelo canto completo. Na primeira linha temos os gráficos dos modelos binomiais, nos quais definimos o score com a probabilidade posterior de 95% da detecção ser verdadeira. Na segunda linha mostramos os gráficos de precisão e recall em função dos limiares de score avaliados. Em todos os casos as linhas vermelhas representam os níveis de score selecionados para cada template
+Visualiza os gráficos de performance para cada template:
+- **Coluna 1:** template 1 (subestrutura do canto)
+- **Coluna 2:** template 2 (canto completo)
+- **Linha 1:** modelos binomiais (probabilidade posterior de 95% de detecção verdadeira)
+- **Linha 2:** precisão e recall em função dos limiares de score
+
+As linhas vermelhas indicam os limiares de score selecionados para cada template.
 ```{r}
 cowplot::plot_grid(
     res_template1$mod_plot, res_template2$mod_plot,
@@ -523,39 +532,41 @@ cowplot::plot_grid(
 )
 ```
 
-### 29. Obtendo o conjunto final de detecções.
+### 6.2. Obter conjunto final de detecções
+Extrai os limiares de score ótimos calculados nos diagnósticos e filtra as detecções para manter apenas aquelas acima desses limiares.
 
+#### 6.2.1. Extrair limiares e nomes dos templates
+Extrai os limiares de score ótimos e os nomes dos templates dos resultados dos diagnósticos.
 ```{r}
-res_template1$score_cut
+# Limiares de score ótimos para cada template
+template1_score <- ls_val_apriori[[1]]$score_cut
+template2_score <- ls_val_apriori[[2]]$score_cut
 
-res_template2$score_cut
-
-detecs1 <- df_detecs %>%
-    filter(
-        template_name == res_template1$diagnostics$template_name[1] &
-        peak_score >= res_template1$score_cut
-    ) %>%
-    glimpse()
-
-detecs2 <- df_detecs %>%
-    filter(
-        template_name == res_template2$diagnostics$template_name[1] &
-        peak_score >= res_template2$score_cut
-    ) %>%
-    glimpse()
-
+# Nomes dos templates
+template1_name <- ls_val_apriori[[1]]$diagnostics$template_name[1]
+template2_name <- ls_val_apriori[[2]]$diagnostics$template_name[1]
 ```
 
+#### 6.2.2. Filtrar detecções do template 1
+Filtra as detecções mantendo apenas aquelas do template 1 com score maior ou igual ao limiar ótimo.
 ```{r}
+df_detecs_final_1 <- df_detecs %>%
+    filter(
+        template_name == template1_name & peak_score >= template1_score
+    ) %>%
+    glimpse()
+```
 
-detection_plots1 <- detecs1 %>%
+Visualização das detecções do template 1.
+```{r eval=TRUE, include=FALSE}
+detection_plots1 <- df_detecs_final_1 %>%
     split(., seq(nrow(.))) %>%
     purrr::map(., ~ {
         wav <- tuneR::readWave(
             filename = .x$soundscape_path, from = .x$detection_start, to = .x$detection_end, units = "seconds"
         )
         res <- fast_spectro(
-            rec = wav, f = wav@samp.rate, wl = 512, ovlp = 70,
+            rec = wav, f = wav@samp.rate, wl = 512, ovlp = 90,
             dyn_range = c(-102, -42), color_scale = "greyscale 1",
             freq_guide_interval = 0, time_guide_interval = 0,
             zoom_freq = c(
@@ -569,26 +580,37 @@ detection_plots1 <- detecs1 %>%
     }, .progress = TRUE)
 length(detection_plots1)
 
-
 cowplot::plot_grid(
     detection_plots1[[1]], detection_plots1[[2]],
     detection_plots1[[3]], detection_plots1[[4]],
     detection_plots1[[5]], detection_plots1[[6]],
-    ncol = 3
+    detection_plots1[[7]], detection_plots1[[8]],
+    detection_plots1[[9]], detection_plots1[[10]],
+    detection_plots1[[11]], detection_plots1[[12]],
+    ncol = 4
 )
 ```
 
-
+#### 6.2.3. Filtrar detecções do template 2
+Filtra as detecções mantendo apenas aquelas do template 2 com score maior ou igual ao limiar ótimo.
 ```{r}
+df_detecs_final_2 <- df_detecs %>%
+    filter(
+        template_name == template2_name & peak_score >= template2_score
+    ) %>%
+    glimpse()
+```
 
-detection_plots2 <- detecs2 %>%
+Visualização das detecções do template 2.
+```{r eval=TRUE, include=FALSE}
+detection_plots2 <- df_detecs_final_2 %>%
     split(., seq(nrow(.))) %>%
     purrr::map(., ~ {
         wav <- tuneR::readWave(
             filename = .x$soundscape_path, from = .x$detection_start, to = .x$detection_end, units = "seconds"
         )
         res <- fast_spectro(
-            rec = wav, f = wav@samp.rate, wl = 512, ovlp = 70,
+            rec = wav, f = wav@samp.rate, wl = 1024, ovlp = 70,
             dyn_range = c(-102, -42), color_scale = "greyscale 1",
             freq_guide_interval = 0, time_guide_interval = 0,
             zoom_freq = c(
@@ -602,15 +624,71 @@ detection_plots2 <- detecs2 %>%
     }, .progress = TRUE)
 length(detection_plots2)
 
-
 cowplot::plot_grid(
     detection_plots2[[1]], detection_plots2[[2]],
     detection_plots2[[3]], detection_plots2[[4]],
     detection_plots2[[5]], detection_plots2[[6]],
     detection_plots2[[7]], detection_plots2[[8]],
     detection_plots2[[9]], detection_plots2[[10]],
-    detection_plots2[[11]], detection_plots2[[12]],
-    detection_plots2[[13]],
     ncol = 5
 )
 ```
+
+### 6.3. Converter detecções finais em tabelas de ROIs
+Converte as detecções filtradas em formato de tabelas de ROIs, que podem ser exportadas e usadas em outros aplicativos ou análises.
+```{r eval=FALSE}
+dir.create("./final_detecs", showWarnings = FALSE)
+df_final <- rbind(df_detecs_final_1, df_detecs_final_2) %>% glimpse()
+df_rois_final <- detecs_to_rois(
+    df_detecs = df_final, username = "User",
+    output_path = "./final_detecs/"
+)
+```
+
+## Considerações finais
+
+### Resumo do processo
+
+Ao longo deste tutorial, realizamos o processamento completo de detecções acústicas utilizando dois templates distintos. O fluxo incluiu: (1) preparação e organização dos dados de entrada (templates e soundscapes), (2) execução do template matching usando diferentes abordagens (simplificada e detalhada), (3) validação das detecções através de métodos a priori ou a posteriori, (4) análise de performance e otimização de limiares, e (5) geração de resultados finais em formatos reutilizáveis.
+
+A estrutura de diretórios e organização dos dados ao longo do processo permite que os resultados sejam revisitados de forma rápida e eficiente, bem como adaptados para diferentes contextos de uso. Os arquivos intermediários (metadados, scores brutos, detecções filtradas) podem ser utilizados para análises adicionais ou ajustes posteriores sem necessidade de reprocessar todo o pipeline.
+
+### Adaptação para diferentes projetos
+
+Este fluxo de análise pode ser adaptado para diferentes projetos em termos de escala e complexidade:
+
+- **Monitoramento de populações:** pode requerer o uso de múltiplos templates quando a espécie alvo apresentar repertórios vocais mais complexos, além da aplicação de filtros adicionais para reduzir o número de detecções falsas. A validação sistemática se torna ainda mais importante nesses casos.
+
+- **Monitoramento de comunidades:** adiciona uma camada extra de complexidade devido à necessidade de detecção de múltiplas espécies simultaneamente. Nesse contexto, recomenda-se processar cada espécie separadamente ou criar pipelines paralelos para diferentes grupos taxonômicos.
+
+- **Projetos em larga escala:** para grandes volumes de dados, considere usar o processo detalhado (seções 4.2-4.5) para maior controle sobre a filtragem e processamento, bem como usar o processamento em paralelo para maior eficiência.
+
+### Próximos passos e extensões
+
+Algumas coisas a explorar quando começar a usar o monitoraSom para seu próprio projeto:
+
+- **Ajuste fino de parâmetros:** experimente diferentes configurações de `wl`, `ovlp`, `dyn_range` e `buffer_size` para otimizar a detecção de acordo com as características acústicas específicas do seu projeto.
+
+- **Integração com outros pacotes:** os dados exportados podem ser facilmente integrados com outros pacotes do R para análise de morfometria, modelagem ecológica, ecologia espacial, fenologia, etc.
+
+- **Automação de workflows:** para projetos repetitivos, considere criar scripts automatizados que combinem múltiplas etapas do processo, reduzindo o tempo de processamento e aumentando a reprodutibilidade.
+
+### Boas práticas recomendadas
+
+1. **Documentação:** mantenha scripts organizados e registros dos parâmetros utilizados em cada etapa, especialmente limiares de score e configurações de filtragem.
+
+2. **Validação contínua:** mesmo com validação a priori, revise a performance dos templates periodicamente, especialmente após a entrada de novos conjuntos de dados para garantir que os resultados não se deteriorem como consequência de mudanças ambientais..
+
+3. **Backup de dados:** preserve os arquivos de scores brutos e detecções não filtradas, pois permitem reavaliação sem reprocessamento completo.
+
+4. **Controle de versão:** use sistemas de controle de versão (ex: Git) para rastrear mudanças em scripts e parâmetros ao longo do projeto.
+
+### Suporte e contribuições
+
+Nós, os desenvolvedores do monitoraSom, estamos sempre abertos a sugestões e melhorias para o pacote. Se você tiver alguma ideia, encontrar um bug, ou quiser contribuir com o desenvolvimento, por favor, entre em contato conosco através do nosso canal de comunicação do GitHub: https://github.com/ConservaSom/monitoraSom/issues.
+
+Para documentação adicional, exemplos avançados e atualizações do pacote, visite nosso repositório: https://github.com/ConservaSom/monitoraSom.
+
+Para informações mais completas e embasamento teórico sobre o monitoraSom, visite nosso preprint: https://www.biorxiv.org/content/10.1101/2025.06.23.661148v1.
+
+**Boa sorte nas descobertas a seguir!**
