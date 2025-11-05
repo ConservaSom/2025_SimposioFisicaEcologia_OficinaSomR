@@ -1,7 +1,7 @@
 ---
 title: "Intruções de instação e configuração dos computadores para as oficinas"
 subtitle: "I Simpósio de Física aplicada à Ecologia e Conservação"
-author: "Gariel Rosa (), Cássio Rachid Simões (cassiorachid@conservasom.com.br)"
+author: "Gariel Rosa (gabrielrosa@conservasom.com.br), Cássio Rachid Simões (cassiorachid@conservasom.com.br)"
 date: "`r Sys.Date()`"
 output: 
   rmdformats::downcute: 
