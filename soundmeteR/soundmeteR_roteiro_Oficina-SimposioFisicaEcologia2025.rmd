@@ -65,7 +65,7 @@ library("soundmeteR")
 
 # Visão geral do _soundmeteR_
 
-O pacote _soundmeteR_ é uma ferramenta desenvolvida em R para extração de valores de energia sonora (pressão e intensidade) a partir de gravações em formato Wave (_.wav_). Ele oferece uma série de funções relacionadas ao fluxo de trabalho para obtenção destas medidas, incluindo a possibilidade de calibração para o cálculo de níveis absolutos de pressão e intensidade e aplicação de curvas de ponderação de frequências (curvas A, B C, Z).  O pacote vem sendo aplicado em fluxos de trabalhos e nas análises alguns artigo científicos a alguns anos e atualmente está em fase final de desenvolvimento e preparação do manuscrito. Abaixo estão as funções principais e uma breve descrição de suas funcionalidades. O arquivo PDF do manual do pacote disponibilizado no GitHub (https://github.com/ConservaSom/soundmeteR) contém uma descrição detalhada de todas as funções disponíveis.
+O pacote _soundmeteR_ é uma ferramenta desenvolvida em R para extração de valores de energia sonora (pressão e intensidade) a partir de gravações em formato Wave (_.wav_). Ele oferece uma série de funções relacionadas ao fluxo de trabalho para obtenção destas medidas, incluindo a possibilidade de calibração para o cálculo de níveis absolutos de pressão e intensidade e aplicação de curvas de ponderação de frequências (curvas A, B C, Z). O pacote vem sendo aplicado em fluxos de trabalhos e nas análises alguns artigo científicos a alguns anos e atualmente está em fase final de desenvolvimento e preparação do manuscrito. Abaixo estão as funções principais que utilizaremos nesse roteiro e uma breve descrição de suas funcionalidades. O arquivo PDF do manual do pacote disponibilizado no GitHub (https://github.com/ConservaSom/soundmeteR/blob/main/soundmeteR_1.0.0.pdf) contém uma descrição detalhada de todas as funções disponíveis.
 
 ```{r tabela-funções, echo = FALSE}
 # Bloco de código oculto. Apenas para construção da tabela no documento final
@@ -76,7 +76,6 @@ matrix(
   ),
   data = c(
     "leqbands", "Calcula o Nível Sonoro Equivalente (Leq) para arquivos para para um arquivos Wave em oitavas ou terças de oitavas",
-    "leqbands_cal", "O mesmo que o *leqbands*, porém permite a calibração a partir de um sinal de referência dentro do mesmo arquivo Wave",
     "soundmeter", "Computa medidas similares às de um decibelímetro a partir de arquivos Wave, permitindo a escolha da janela de amostragem (fast ou slow) e apresenta medidas comumente encontradas nestes tipos de equipamentos como Leq, L10, L50, L90, Lmax, entre outras"
   ),
   ncol = 2,
@@ -89,9 +88,9 @@ matrix(
 
 # Exemplos de uso
 
-## Carregando os pacotes e o arquivos de exemplo
+## Carregando os pacotes necessário
 
-Carregando os pacotes necessários:
+Antes de iniciar, vamos carregar os pacotes necessários para este roteiro.
 ```{r eval = FALSE}
 # carregar o pacote soundmeteR
 library(soundmeteR)
@@ -107,7 +106,7 @@ library(dplyr)
 library(ggplot2)
 ```
 
-## Aplicações do _soundmeteR_ em gravações não calibradas
+## Aplicação do _soundmeteR_ em gravações sem calibração
 
 Carregando o exemplo interno do pacote e visualizando o espectrograma. O exemplo é um canto de um _Thamnophilus stictocephalus_.
 ```{r eval = FALSE}
