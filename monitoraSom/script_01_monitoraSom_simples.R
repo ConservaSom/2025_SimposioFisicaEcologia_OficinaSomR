@@ -1,3 +1,5 @@
+
+install.packages("dplyr")
 ### 1. Carregar o monitoraSom e outros pacotes necessários.
 library(monitoraSom)
 library(dplyr)
@@ -5,7 +7,8 @@ library(ggplot2)
 library(patchwork)
 
 ### 2. Organizando o ambiente de trabalho.
-# Vamos verificar e, se necessário, ajustar manualmente o diretório de trabalho da sessão atual.
+# Vamos verificar e, se necessário, ajustar manualmente o
+# diretório de trabalho da sessão atual.
 getwd()
 project_path <- paste0(getwd(), "/monitoraSom")
 setwd(project_path)
@@ -32,8 +35,10 @@ launch_segmentation_app(
     color_scale = "greyscale 1", visible_bp = TRUE, nav_autosave = TRUE
 )
 
-# 6. Extraindo os templates das tabelas de ROIs.
-# Importando as tabelas de ROIs. Note que com o processo abaixo selecionamos apenas um template de cada tipo (Substructure C e Complete Song).
+# 6. Extraindo os templates das tabelas de ROIs. Importando
+# as tabelas de ROIs. Note que com o processo abaixo
+# selecionamos apenas um template de cada tipo (Substructure
+# C e Complete Song).
 df_templates <- fetch_rois(rois_path = "./roi_tables/") %>%
     filter(roi_comment %in% c("Substructure C", "Complete Song")) %>%
     group_by(roi_comment) %>%
