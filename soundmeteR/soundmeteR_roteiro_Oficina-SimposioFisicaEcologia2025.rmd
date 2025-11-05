@@ -55,7 +55,7 @@ install.packages("devtools")
 É possível encontrar as instruções de instalação do _soundmeteR_ no repositório oficial do GitHub (https://github.com/ConservaSom/soundmeteR), mas para facilitar o processo, basta executar o código abaixo para instalar o _soundmeteR_ e suas dependências:
 
 ```{r eval=FALSE}
-devtools::install_github("ConservaSom/soundmeteR")
+devtools::install_github("ConservaSom/soundmeteR", dependencies = TRUE)
 ```
 
 Para verificar se o _soundmeteR_ foi instalado corretamente, basta carregar o pacote utilizando o comando abaixo (nenhuma mensagem de erro deve ser exibida):
@@ -65,7 +65,7 @@ library("soundmeteR")
 
 # Visão geral do _soundmeteR_
 
-O pacote _soundmeteR_ é uma ferramenta desenvolvida em R para extração de valores de energia sonora (pressão e intensidade) a partir de gravações em formato Wave (_.wav_). Ele oferece uma série de funções relacionadas ao fluxo de trabalho para obtenção destas medidas, incluindo a possibilidade de calibração para o cálculo de níveis absolutos de pressão e intensidade e aplicação de curvas de ponderação de frequências (curvas A, B C, Z).  O pacote vem sendo aplicado em fluxos de trabalhos e nas análises alguns artigo científicos a alguns anos e atualmente está em fase final de desenvolvimento e preparação do manuscrito. Abaixo estão as funções principais e uma breve descrição de suas funcionalidades. O arquivo PDF do manual do pacote disponibilizado no GitHub (https://github.com/ConservaSom/soundmeteR) contém uma descrição detalhada de todas as funções disponíveis.
+O pacote _soundmeteR_ é uma ferramenta desenvolvida em R para extração de valores de energia sonora (pressão e intensidade) a partir de gravações em formato Wave (_.wav_). Ele oferece uma série de funções relacionadas ao fluxo de trabalho para obtenção destas medidas, incluindo a possibilidade de calibração para o cálculo de níveis absolutos de pressão e intensidade e aplicação de curvas de ponderação de frequências (curvas A, B C, Z). O pacote vem sendo aplicado em fluxos de trabalhos e nas análises alguns artigo científicos a alguns anos e atualmente está em fase final de desenvolvimento e preparação do manuscrito. Abaixo estão as funções principais que utilizaremos nesse roteiro e uma breve descrição de suas funcionalidades. O arquivo PDF do manual do pacote disponibilizado no GitHub (https://github.com/ConservaSom/soundmeteR/blob/main/soundmeteR_1.0.0.pdf) contém uma descrição detalhada de todas as funções disponíveis.
 
 ```{r tabela-funções, echo = FALSE}
 # Bloco de código oculto. Apenas para construção da tabela no documento final
@@ -76,7 +76,6 @@ matrix(
   ),
   data = c(
     "leqbands", "Calcula o Nível Sonoro Equivalente (Leq) para arquivos para para um arquivos Wave em oitavas ou terças de oitavas",
-    "leqbands_cal", "O mesmo que o *leqbands*, porém permite a calibração a partir de um sinal de referência dentro do mesmo arquivo Wave",
     "soundmeter", "Computa medidas similares às de um decibelímetro a partir de arquivos Wave, permitindo a escolha da janela de amostragem (fast ou slow) e apresenta medidas comumente encontradas nestes tipos de equipamentos como Leq, L10, L50, L90, Lmax, entre outras"
   ),
   ncol = 2,
@@ -89,9 +88,9 @@ matrix(
 
 # Exemplos de uso
 
-## Carregando os pacotes e o arquivos de exemplo
+## Carregando os pacotes necessário
 
-Carregando os pacotoes necessários:
+Antes de iniciar, vamos carregar os pacotes necessários para este roteiro.
 ```{r eval = FALSE}
 # carregar o pacote soundmeteR
 library(soundmeteR)
@@ -107,10 +106,19 @@ library(dplyr)
 library(ggplot2)
 ```
 
-Carregando o exemplo interno do pacote e visualizando o espectrograma. O exemplo é um canto de um _Thamnophilus stictocephalus_ em uma gravação calibrada.
+## Aplicação do _soundmeteR_ em gravações sem calibração
+
+Carregando o exemplo interno do pacote e visualizando o espectrograma. O exemplo é um canto de um _Thamnophilus stictocephalus_.
 ```{r eval = FALSE}
 # Carregando aquivo de exemplo do pacote soundmeteR (Thamnophilus stictocephalus)
 data(tham)
+
+# Espectrograma do arquivo de exemplo
+spectro(
+  tham,
+  flim = c(0, 8), # zoom na frequência
+  scale = FALSE
+)
 
 # Corte do trecho do arquivo em que o canto da espécie aparece
 som <- cutw(
@@ -122,7 +130,6 @@ som <- cutw(
 
 # verificando o arquivo
 som
-
 
 # Espectrograma do arquivo de exemplo
 spectro(
@@ -139,8 +146,6 @@ listen(
   som
 )
 ```
-
-## Aplicações do _soundmeteR_ em gravações não calibradas
 
 A função `leqbands()` calcula o nível sonoro equivalente (Leq) em bandas de oitavas ou terças de oitavas para arquivos Wave. Quando utilizado em gravações não calibradas, a função retorna os valores em dBFS (decibéis em full scale -  relativo ao ponto de distorção em 0 dB).
 ```{r eval = FALSE}
@@ -197,9 +202,11 @@ spectro(
 
 # extraindo valor de calibração
 calib_value <- calibration(
-  file = calib,
-  channel = "left",
-  leqsignal = 94
+  calib,
+  from = 2, # tempo de início da leitura
+  to = 8, # tempo de final da leitura
+  channel = "left", # canal da gravação
+  leqsignal = 94 # valor de referência do sinal
 ) %>%
   print()
 ```
@@ -209,13 +216,17 @@ Nesse momento utilizaremos o resultado obtido ao final da prática realizada com
 Precisamos abrir o app de validação do _monitoraSom_ para selecionar as detecções de cantos que não tenham sobreposição com ruído de fundo. Esta ação é necessária pois o ruído pode interferir nas medidas de pressão sonora, gerando valores incoerentes com a realidade.
 ```{r eval = FALSE}
 launch_validation_app(
-    project_path = ".", validation_user = "User",
-    templates_path = "./templates/", soundscapes_path = "./soundscapes/",
-    input_path = "./detections/df_detecs_soundmeter.csv",
-    output_path = "./detections/df_detecs_soundmeter.csv",
-    dyn_range_templ = c(-78, -30), dyn_range_detec = c(-78, -30), wl = 1024,
-    ovlp = 70, time_guide_interval = 0, freq_guide_interval = 0,
-    overwrite = TRUE
+  project_path = ".", validation_user = "User",
+  templates_path = "./templates/", soundscapes_path = "./soundscapes/",
+  input_path = "./detections/df_detecs_soundmeter.csv",
+  output_path = "./detections/df_detecs_soundmeter.csv",
+  dyn_range_templ = c(-36, 0),
+  dyn_range_detec = c(-96, -36),
+  wl = 512,
+  ovlp = 70,
+  time_guide_interval = 0,
+  freq_guide_interval = 0,
+  overwrite = TRUE,
 )
 ```
 
@@ -228,7 +239,6 @@ detections <- read.csv(
     validation == "TP" # filtro dos arquivos úteis
   ) %>%
   print()
-
 ```
 
 Calculando as medidas de pressão sonora de cada detecção com a função `soundmeter`. 
@@ -241,60 +251,85 @@ spl <- soundmeter(
   CalibValue = calib_value, # fator de calibração obtido anteriormente
   tw = "fast", # janela de ponderação do tempo
   fw = "A", # curva de ponderação de frequência
-  bandpass = c(500,10000) # filtro de passagem de banda
+  bandpass = c(2500, 9000) # filtro de passagem de banda
 ) %>%
   print()
 ```
 
-O resultado da função será colocado
+Colocando os valores de LAmax calculados dentro da matriz de detecções úteis e ordenando em ordem crescente de pressão sonora.
 ```{r eval = FALSE}
-# spl <- spl %>%
-#   arrange(LAmax) %>%
-#   print()
-
 detections <- detections %>%
   mutate(
     LAmax = spl$LAmax
   ) %>%
-  arrange(LAmax) %>%
+  arrange(LAmax) %>% # colocando em ordem crescente de LAmax
   print()
+```
 
-layout(matrix(1:10, nrow = 2, byrow = TRUE))
-
+Gerando uma prancha para visualizar os cantos detectados e seus valores de pressão sonora.
+```{r eval = FALSE}
+# gerando o gráficos para visualizar os resultados
 detection_plots1 <- detections %>%
-    split(., seq(nrow(.))) %>%
-    purrr::map(., ~ {
-        wav <- tuneR::readWave(
-          filename = .x$soundscape_path,
-          from = .x$detection_start,
-          to = .x$detection_end,
-          units = "seconds"
-        )
-        res <- fast_spectro(
-          rec = wav, f = wav@samp.rate, wl = 512, ovlp = 70,
-          dyn_range = c(-102, -42), color_scale = "greyscale 1",
-          freq_guide_interval = 0, time_guide_interval = 0,
-          zoom_freq = c(
-            .x$template_min_freq,
-            .x$template_max_freq
-          )
-        ) +
-          theme_bw() +
-          theme(legend.position = "none") +
-          ggtitle( paste0(.x$LAmax, " dB"))
-        return(res)
-    }, .progress = TRUE)
+  split(., seq(nrow(.))) %>%
+  purrr::map(., ~ {
+    wav <- tuneR::readWave(
+      filename = .x$soundscape_path,
+      from = .x$detection_start,
+      to = .x$detection_end,
+      units = "seconds"
+    )
+    res <- fast_spectro(
+      rec = wav, f = wav@samp.rate, wl = 512, ovlp = 70,
+      dyn_range = c(-102, -42), color_scale = "greyscale 1",
+      freq_guide_interval = 0, time_guide_interval = 0,
+      zoom_freq = c(
+        .x$template_min_freq,
+        .x$template_max_freq
+      )
+    ) +
+      theme_bw() +
+      theme(legend.position = "none") +
+      ggtitle(paste0(
+        "ID ", .x$detection_id,
+        " | ",
+        .x$LAmax, " dB"
+      ))
+    return(res)
+  }, .progress = TRUE)
 
+#  verificando o número de gráficos gerados
 length(detection_plots1)
 
-
+# gerando a prancha com cowplot
 cowplot::plot_grid(
-  detection_plots1[[1]], detection_plots1[[2]],
+  # prancha do espectrogramas ID e pressão sonora
+  cowplot::plot_grid(
+    detection_plots1[[1]], detection_plots1[[2]],
     detection_plots1[[3]], detection_plots1[[4]],
     detection_plots1[[5]], detection_plots1[[6]],
     detection_plots1[[6]], detection_plots1[[7]],
     detection_plots1[[8]], detection_plots1[[9]],
-  nrow = 2
+    nrow = 2
+  ),
+  # Barplot
+  ggplot(
+    detections,
+    aes(x = factor(
+      detection_id,
+      level = detection_id
+    ), y = LAmax)
+  ) +
+    geom_bar(stat = "identity") +
+    xlab("ID") +
+    coord_cartesian(ylim=c(65,85)) +
+    theme_bw(),
+  ncol = 2,
+  rel_widths = c(3, 1)
 )
-
 ```
+
+# Leitura recomendada
+
+O fluxo de trabalho apresentado nesta oficina tem muitas aplicações interessantes, como avaliar perfil de ruído de fundo e calcular modelos de decaimento de cantos de espécies. O fluxo de trabalho apresentado nesta oficina é uma parte do que foi recentemente aplicado em um artigo para estimar abundancia de duas espécies de aves a utilizando as distâncias estimadas de seus cantos em gravações monitoramento acústico passivo. Aos interessados, recomenda-se a leitura:
+
+- de Araújo *et al*. 2025. **Towards large-scale abundance assessments through automated birdsong detection and distance estimation**. *IBIS*. URL: https://doi.org/10.1111/ibi.13431
